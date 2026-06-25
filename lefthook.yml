@@ -1,0 +1,14 @@
+# フロント (apps/studio/frontend) 用の pre-commit フック。
+# Python 側 (src/voxmap) は .pre-commit-config.yaml が担当する (ADR: CI/品質ゲート分離)。
+pre-commit:
+  parallel: true
+  commands:
+    biome:
+      root: apps/studio/frontend/
+      glob: "*.{ts,tsx,js,jsx,json,css}"
+      run: bunx biome check --write --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+    tsc:
+      root: apps/studio/frontend/
+      glob: "*.{ts,tsx}"
+      run: bunx tsc --noEmit

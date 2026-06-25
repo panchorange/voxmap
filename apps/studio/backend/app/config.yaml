@@ -1,0 +1,38 @@
+# voxmap-studio backend の話者分離 config。
+# pyannote31-pe テーマ 5/21 以降の reference config (f=0.01 相対mcs / stride3 / centroid)。
+pipeline:
+  device: auto # auto = cuda > mps > cpu
+  segmentation_model: pyannote/segmentation-3.0
+  embedding_model: Wespeaker/wespeaker-voxceleb-campplus
+  threshold: 0.7045654963945799
+  method: centroid
+  min_cluster_size: 12 # min_cluster_fraction 設定時は fallback (未使用)
+  min_cluster_fraction: 0.01 # 埋め込み総数に対する割合で mcs を決める
+  embedding_batch_size: 64
+  segmentation_batch_size: 32
+  embedding_exclude_overlap: true
+  min_duration_off: 0.0
+  segmentation_step: 3.0 # = stride3
+  embedding_per_chunk: true
+  embedding_dtype: float16          # 埋め込み body を fp16 化 (DER 不変)
+  fbank_backend: melspec            # kaldi(CPU FFT) → MelSpectrogram(MPS/CUDA)。CAM++のみ
+
+# 論文 proposed の高速 recipe (stride3 + per-chunk + CAM++ + fp16 + melspec) と同一構成。
+# fp16/melspec は load_diarization31_pipeline に昇格済み (voxmap/embedding/optimize.py)。
+# AMI MPS で RTF ~0.006 (DER は baseline ±0.01)。
+
+# クラスタ粒度の話者レコメンド (一括対応ポップアップ)。重心は分離が算出済みのものを
+# 再利用するため RTF 影響なし (設計 §7)。segment 粒度の怪しさ判定は未実装。
+recommend:
+  reduction: centroid               # enroll を重心に縮約して cos (max も可)
+  threshold: 0.3                    # τ: これ未満は候補に出さず「新規話者」扱い (棄却)
+                                    # NOTE: AMI dev で EER 動作点に要キャリブレーション (暫定値)
+  top_k: 3                          # 候補として出す最大件数 (τ以上のうち上位 k 件)
+
+# segment 粒度の怪しさ判定 (ギャラリ不使用・auto クラスタ重心だけで混同を炙り出す)。
+# margin = cos(自クラスタ重心, leave-one-out) - max cos(別クラスタ重心)。
+#   margin < 0      → intruder (別クラスタの方が近い = 混入の疑い)
+#   0 ≤ margin < δ  → boundary (端っこ・拮抗)
+suspicion:
+  delta: 0.05                       # δ: boundary 幅。margin が 0〜δ なら拮抗とみなす
+                                    # NOTE: AMI dev で実エラーとの相関を見て要キャリブレーション (暫定値)

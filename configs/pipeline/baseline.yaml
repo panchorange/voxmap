@@ -1,0 +1,18 @@
+vad:
+  name: pyannote
+  params: {}
+
+embedding:
+  name: pyannote
+  params:
+    min_duration: 0.5
+
+clustering:
+  name: ahc
+  params:
+    threshold: 0.7
+    # 小クラスタ除去の閾を埋め込み点数に比例させる: mcs = max(2, round(0.01 * n))。
+    # 絶対 min_cluster_size は 1話者あたりサンプル数が dataset で ~20x 違うため両立しない
+    # (AMI ~200/話者 vs VoxConverse ~10/話者)。f=0.01 で VoxConverse stride3 の DER 損失の
+    # ~89% を回復しつつ AMI を中立に保つ。ADR: docs/design/decisions/2026-05-21_relative-mcs.md
+    min_cluster_fraction: 0.01

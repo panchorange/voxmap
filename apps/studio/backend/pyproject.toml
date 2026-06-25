@@ -1,0 +1,46 @@
+[project]
+name = "voxmap-studio-backend"
+version = "0.1.0"
+description = "FastAPI backend for voxmap-studio (diarization via voxmap)"
+requires-python = ">=3.12.9"
+dependencies = [
+    "voxmap",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.34",
+    "python-multipart>=0.0.18",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.uv.sources]
+voxmap = { workspace = true }
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[dependency-groups]
+dev = ["httpx>=0.27"]
+
+# backend 専用の mypy 設定 (ルートの engine 用 [tool.mypy] とは別)。
+# このディレクトリから `uv run mypy app` で実行する。
+[tool.mypy]
+strict = true
+python_version = "3.12"
+show_error_codes = true
+disable_error_code = ["import-untyped"]
+
+[[tool.mypy.overrides]]
+module = ["voxmap.*", "pyannote.*", "torchaudio.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

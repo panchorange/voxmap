@@ -1,0 +1,72 @@
+[project]
+name = "voxmap"
+version = "0.1.0"
+description = "Speaker diarization library and experimentation playground"
+readme = "README.md"
+requires-python = ">=3.12.9"
+dependencies = [
+    "numpy>=2.0",
+    "torch>=2.2",
+    "torchaudio>=2.2",
+    "pyannote-audio>=4.0",
+    "omegaconf>=2.3.0",
+    "pyyaml>=6.0.3",
+    "types-pyyaml>=6.0.12.20260408",
+    "typer>=0.25.1",
+    "structlog>=25.5.0",
+    "polars>=1.40.1",
+    "matplotlib>=3.10.9",
+    "spectralcluster>=0.2.22",
+    "nemo-toolkit[asr]>=2.1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/voxmap"]
+
+# uv workspace: アプリ層 (apps/studio/backend) を別パッケージとして同一リポで管理。
+# 依存方向は backend -> voxmap の一方向 (ADR 2026-06-02_app-layer-voxmap-studio)。
+[tool.uv.workspace]
+members = ["apps/studio/backend"]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+    "pre-commit>=4.5.1",
+    "ruff>=0.14.14",
+    "pytest>=8.0.0",
+    "huggingface-hub[cli]>=1.13.0",
+    "torchinfo>=1.8.0",
+    "seaborn>=0.13.2",
+    "mlx-whisper>=0.4.3",
+    "parakeet-mlx>=0.5.1",
+    "meeteval>=0.4.3",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+# apps/ (studio backend) は自前の ruff/mypy 設定で別途チェック (ADR: 品質ゲート分離)。
+extend-exclude = ["apps/"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+show_error_codes = true
+warn_unused_ignores = true
+mypy_path = "src"
+disable_error_code = ["import-untyped"]
+exclude = ["experiments/", "profiles/", "research/", "analysis/", "data/", "apps/"]
+
+[[tool.mypy.overrides]]
+module = ["pyannote.*", "torchaudio.*", "sklearn.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

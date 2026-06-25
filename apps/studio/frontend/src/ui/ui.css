@@ -1,0 +1,759 @@
+/* 共通スタイル。色はすべて themes.css の CSS 変数を参照する。 */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  /* テーマが --app-pattern を定義すると、背景色の上に薄い装飾模様を敷く。
+     canvas (波形/レーン) は不透明なので余白側にだけ出てアノテーションを邪魔しない。 */
+  background-color: var(--app-bg);
+  background-image: var(--app-pattern, none);
+  background-attachment: fixed;
+  color: var(--text);
+}
+
+.app {
+  min-height: 100vh;
+  padding: 16px;
+}
+
+.app__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+/* アノテーションモードを一目で示すアクセント枠。 */
+.app__header--annotation {
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 8px;
+}
+
+/* --- モード切替 (segmented control) --- */
+.modetoggle {
+  display: inline-flex;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.modetoggle__btn {
+  font-size: 0.72rem;
+  padding: 5px 10px;
+  border: none;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.modetoggle__btn--active {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+/* --- status バッジ (segment list) --- */
+.badge--annotation {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+.seglist__status {
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.seglist__status--auto {
+  border-style: dashed;
+  opacity: 0.85;
+}
+.seglist__status--confirmed {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  cursor: default;
+}
+
+.app__title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.app__tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- buttons --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: var(--surface-2);
+  color: var(--text);
+}
+.btn:hover {
+  background: var(--surface-hover);
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.btn--accent {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+.btn--accent:hover {
+  background: var(--accent-hover);
+}
+.btn--magic {
+  background: var(--magic);
+  color: #fff;
+}
+.btn--magic:hover {
+  background: var(--magic-hover);
+}
+.error-banner {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: color-mix(in srgb, var(--danger) 20%, transparent);
+  border: 1px solid var(--danger);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.notice-banner {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border: 1px solid var(--accent);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.notice-banner--warn {
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+  border-color: var(--danger);
+}
+
+/* 自動保存の復元バナー (起動時)。テキスト + 復元/破棄ボタンを横並びに。 */
+.restore-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: default;
+}
+.restore-banner__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* 自動保存ステータス (ヘッダ隅・控えめ)。トーストではなく常駐テキスト。 */
+.save-status {
+  font-size: 0.7rem;
+  color: var(--text-muted, var(--text));
+  opacity: 0.7;
+  white-space: nowrap;
+  transition: opacity 0.4s ease;
+}
+.save-status--emphatic {
+  opacity: 1;
+  color: var(--accent);
+  font-weight: 600;
+}
+.save-status--error {
+  opacity: 1;
+  color: var(--danger);
+}
+
+/* spinner (グルグル) */
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.diarize-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: color-mix(in srgb, var(--app-bg) 60%, transparent);
+  border-radius: 8px;
+  z-index: 10;
+}
+.diarize-overlay__text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.85rem;
+}
+
+.badge {
+  font-size: 0.6rem;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  margin-left: 2px;
+}
+.btn--danger {
+  background: var(--danger);
+  color: #fff;
+}
+.btn--danger:hover {
+  background: var(--danger-hover);
+}
+
+/* --- select / inputs --- */
+.select {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+}
+
+.theme-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.theme-switcher__label {
+  font-size: 0.7rem;
+  color: var(--text-faint);
+}
+
+/* JP/EN 言語トグル (modetoggle と同じ見た目) */
+.lang-switcher {
+  display: inline-flex;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.lang-switcher__btn {
+  font-size: 0.72rem;
+  padding: 5px 9px;
+  border: none;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.lang-switcher__btn--active {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+/* 話者数指定 (話者分離ボタンの左): AUTO トグル + 手動入力 */
+.speaker-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.speaker-count__label {
+  font-size: 0.7rem;
+  color: var(--text-faint);
+}
+.btn--toggle.is-on {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+.speaker-count__input {
+  width: 3.2em;
+  font-size: 0.75rem;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--text);
+  text-align: center;
+}
+.speaker-count__input:disabled {
+  opacity: 0.4;
+}
+.speaker-count__input.is-active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.speaker-count__input.is-invalid {
+  border-color: var(--danger);
+}
+
+/* --- video preview --- */
+.video-preview {
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+  max-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.video-preview__player {
+  width: 100%;
+  max-height: 40vh;
+  object-fit: contain;
+  display: block;
+}
+
+/* --- surfaces --- */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+.faint {
+  color: var(--text-faint);
+}
+
+/* --- transport --- */
+.transport {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.transport__play {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  justify-content: center;
+}
+.transport__time {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+}
+
+/* --- waveform --- */
+.waveform__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.waveform__canvas-wrap {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 70vh;
+  user-select: none;
+  touch-action: none;
+}
+/* 波形ストリップを wrap 内で sticky にする。スクロールしても常に上部に表示。 */
+.waveform__strip {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-bottom: 1px solid var(--border);
+}
+
+/* --- speaker chips --- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  padding: 2px 6px 2px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+}
+.chip--active {
+  background: var(--surface-2);
+  font-weight: 600;
+}
+.chip__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.chip__x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-muted, #888);
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.chip__x:hover {
+  background: var(--danger);
+  color: #fff;
+}
+.chip__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: none;
+}
+.chip__input {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  width: 8rem;
+}
+
+/* --- bulk bar --- */
+.bulkbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-top: 8px;
+}
+
+/* --- segment list --- */
+.seglist {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  /* 一覧が長くてもこの枠内だけ縦スクロール (波形レーンと同じ挙動) */
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.seglist__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+}
+.seglist__row:last-child {
+  border-bottom: none;
+}
+.seglist__row:hover {
+  background: var(--surface-2);
+}
+.seglist__row--sel {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.seglist__idx {
+  width: 2em;
+  text-align: right;
+}
+.seglist__time {
+  font-variant-numeric: tabular-nums;
+  min-width: 11em;
+}
+.seglist__dur {
+  font-variant-numeric: tabular-nums;
+  margin-left: auto;
+}
+
+/* --- drag & drop overlay --- */
+.dropzone-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: var(--accent-soft);
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  border: 4px dashed var(--accent-soft);
+  pointer-events: none;
+}
+
+/* --- modal --- */
+.modal__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.6);
+}
+.modal {
+  width: 100%;
+  max-width: 640px;
+  padding: 16px;
+}
+.modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.modal__textarea {
+  width: 100%;
+  height: 220px;
+  resize: none;
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  background: var(--app-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 8px;
+}
+.modal__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* 一括対応ポップアップ (SpeakerMappingDialog) */
+.map-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 12px 0;
+}
+.map-row {
+  /* ▶cluster · cluster名 · → · ▶gallery · select · 類似 · bar */
+  display: grid;
+  grid-template-columns: auto auto auto auto minmax(140px, 1fr) auto 80px;
+  align-items: center;
+  gap: 8px;
+}
+.map-row__play {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+.map-row__play:hover {
+  background: var(--surface-hover);
+}
+.map-row__play:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.map-row__cluster {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8rem;
+  color: var(--text);
+}
+.map-row__arrow {
+  color: var(--text-faint);
+}
+.map-row__select {
+  background: var(--app-bg);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 0.8rem;
+}
+.map-row__score {
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.map-row__bar {
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--surface-hover);
+  overflow: hidden;
+}
+.map-row__bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+/* ---- 候補話者パネル (R) ---- */
+.candidate {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  max-width: 420px;
+}
+.candidate__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.candidate__title {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-right: auto;
+}
+.candidate__empty {
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  margin: 4px 0;
+}
+.candidate__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.candidate__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.candidate__play {
+  flex: none;
+  font-size: 0.7rem;
+  padding: 3px 7px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: var(--surface-2);
+  color: var(--text);
+}
+.candidate__play:hover {
+  background: var(--surface-hover);
+}
+.candidate__pick {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  background: var(--surface-2);
+  color: var(--text);
+  text-align: left;
+}
+.candidate__pick:hover {
+  background: var(--surface-hover);
+}
+.candidate__pick--current {
+  border-color: var(--border-strong);
+  cursor: default;
+}
+.candidate__name {
+  flex: none;
+  width: 130px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.candidate__cur {
+  flex: none;
+  width: 2.4em; /* current 有無で行幅が変わらないよう常に確保 (バー終端を揃える) */
+  font-size: 0.65rem;
+  color: var(--text-faint);
+  text-align: center;
+}
+.candidate__cur:not(:empty) {
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+}
+.candidate__bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-hover);
+  overflow: hidden;
+  min-width: 40px;
+}
+.candidate__bar-fill {
+  display: block;
+  height: 100%;
+}
+.candidate__score {
+  flex: none;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  width: 2.6em;
+  text-align: right;
+}
+.candidate__novel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  width: 100%;
+  padding: 5px 8px;
+  font-size: 0.78rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-muted);
+}
+.candidate__novel:hover {
+  background: var(--surface-2);
+}
+.candidate__novel--suggest {
+  border-color: var(--accent-soft);
+  color: var(--text);
+}

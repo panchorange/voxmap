@@ -1,0 +1,1042 @@
+/*
+ * テーマ定義。すべての色を CSS 変数 (semantic token) に集約する。
+ * - DOM は class からこの変数を参照する (ui.css)
+ * - Canvas は getComputedStyle でこの変数を読む (theme.ts: readCanvasPalette)
+ * 新テーマの追加 = [data-theme="..."] ブロックを1つ足すだけ。コンポーネントは触らない。
+ *
+ * 既定 (dark) は claude-artifact の現状の見た目 (Tailwind slate/indigo) を起こしたもの。
+ */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* surfaces / text */
+  --app-bg: #020617; /* slate-950 */
+  --surface: #0f172a; /* slate-900 */
+  --surface-2: #1e293b; /* slate-800 */
+  --surface-hover: #334155; /* slate-700 */
+  --border: #1e293b; /* slate-800 */
+  --border-strong: #334155; /* slate-700 */
+  --text: #e2e8f0; /* slate-200 */
+  --text-muted: #94a3b8; /* slate-400 */
+  --text-faint: #64748b; /* slate-500 */
+
+  /* accent (primary action) */
+  --accent: #4f46e5; /* indigo-600 */
+  --accent-hover: #6366f1; /* indigo-500 */
+  --accent-fg: #ffffff;
+  --accent-soft: #818cf8; /* indigo-400 */
+
+  /* secondary action (自動分離) */
+  --magic: #7c3aed; /* violet-600 */
+  --magic-hover: #8b5cf6; /* violet-500 */
+
+  /* destructive */
+  --danger: #dc2626; /* red-600 */
+  --danger-hover: #ef4444; /* red-500 */
+
+  /* ---- canvas (波形領域) ---- */
+  --wave-bg: #0f172a;
+  --wave-ruler-bg: #0b1220;
+  --wave-grid: #1e293b;
+  --wave-midline: #475569;
+  --wave-ruler-text: #64748b;
+  --seg-default: #64748b; /* 話者未割当/プレビュー */
+  --seg-no-speaker: #94a3b8;
+  --seg-selected: #e2e8f0; /* 選択中の枠/塗り/ラベル */
+  --playhead: #f43f5e; /* rose-500 */
+
+  /* 怪しさ地図 (混同していそうな区間)。話者パレットと独立のセマンティック色。
+     意味 (hue) はテーマ越しに固定 = 赤(外れ)/アンバー(境界)。値だけテーマごとに調整。
+     intruder は各テーマ調整済みの --danger を再利用 (アラート赤、accent と区別済み)。
+     boundary のアンバーだけ背景に合わせ per-theme で上書きする。 */
+  --suspicion-intruder: var(--danger);
+  --suspicion-boundary: #f59e0b; /* amber-500 (暗背景の既定) */
+
+  /* ---- speaker palette (循環割当。Canvas もここから読む) ---- */
+  --spk-0: #6366f1;
+  --spk-1: #f59e0b;
+  --spk-2: #10b981;
+  --spk-3: #ec4899;
+  --spk-4: #06b6d4;
+  --spk-5: #ef4444;
+  --spk-6: #8b5cf6;
+  --spk-7: #84cc16;
+  --spk-8: #f97316;
+  --spk-9: #0ea5e9;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --app-bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --surface-hover: #e2e8f0;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --text-muted: #475569;
+  --text-faint: #94a3b8;
+
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-fg: #ffffff;
+  --accent-soft: #6366f1;
+
+  --magic: #7c3aed;
+  --magic-hover: #6d28d9;
+
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+
+  --wave-bg: #f1f5f9;
+  --wave-ruler-bg: #e2e8f0;
+  --wave-grid: #cbd5e1;
+  --wave-midline: #94a3b8;
+  --wave-ruler-text: #64748b;
+  --seg-default: #94a3b8;
+  --seg-no-speaker: #64748b;
+  --seg-selected: #0f172a;
+  --playhead: #e11d48;
+  --suspicion-boundary: #d97706; /* amber-600: 白背景でコントラスト確保 */
+
+  --spk-0: #4f46e5;
+  --spk-1: #d97706;
+  --spk-2: #059669;
+  --spk-3: #db2777;
+  --spk-4: #0891b2;
+  --spk-5: #dc2626;
+  --spk-6: #7c3aed;
+  --spk-7: #65a30d;
+  --spk-8: #ea580c;
+  --spk-9: #0284c7;
+}
+
+/* 高コントラスト系の例: テーマ追加がブロック1つで済むことのデモ */
+[data-theme="ocean"] {
+  color-scheme: dark;
+
+  /* 薄い波模様 */
+  --app-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24'%3E%3Cpath d='M0 16 Q12 6 24 16 T48 16' fill='none' stroke='%2300b4d8' stroke-opacity='0.07' stroke-width='1.5'/%3E%3C/svg%3E");
+
+  --app-bg: #001219;
+  --surface: #002430;
+  --surface-2: #003845;
+  --surface-hover: #004b5a;
+  --border: #003845;
+  --border-strong: #00606f;
+  --text: #e0fbfc;
+  --text-muted: #82c0c9;
+  --text-faint: #4e8a93;
+
+  --accent: #00b4d8;
+  --accent-hover: #48cae4;
+  --accent-fg: #001219;
+  --accent-soft: #90e0ef;
+
+  --magic: #c77dff;
+  --magic-hover: #e0aaff;
+
+  --danger: #ef476f;
+  --danger-hover: #ff5d85;
+
+  --wave-bg: #002430;
+  --wave-ruler-bg: #001a24;
+  --wave-grid: #003845;
+  --wave-midline: #00606f;
+  --wave-ruler-text: #4e8a93;
+  --seg-default: #4e8a93;
+  --seg-no-speaker: #82c0c9;
+  --seg-selected: #e0fbfc;
+  --playhead: #ff5d8f;
+
+  --spk-0: #00b4d8;
+  --spk-1: #ffd166;
+  --spk-2: #06d6a0;
+  --spk-3: #ff70a6;
+  --spk-4: #4cc9f0;
+  --spk-5: #ef476f;
+  --spk-6: #c77dff;
+  --spk-7: #b5e48c;
+  --spk-8: #ffb703;
+  --spk-9: #48cae4;
+}
+
+/* ファミコン本体カラー (アイボリーの白 + えんじ色 + 金文字) */
+[data-theme="famicom"] {
+  color-scheme: light;
+
+  /* 薄い十字 (コントローラの十字キー) パターン */
+  --app-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34'%3E%3Cpath d='M13 6h4v7h7v4h-7v7h-4v-7H6v-4h7z' fill='%238b2535' fill-opacity='0.06'/%3E%3C/svg%3E");
+
+  --app-bg: #e7e0d2; /* 本体アイボリー */
+  --surface: #f3eee2;
+  --surface-2: #ded5c2;
+  --surface-hover: #cfc3aa;
+  --border: #d6ccb6;
+  --border-strong: #b3a888;
+  --text: #3a2226; /* えんじ寄りの黒 */
+  --text-muted: #6e4a4f;
+  --text-faint: #9a8478;
+
+  --accent: #8b2535; /* えんじ色 (コントローラ) */
+  --accent-hover: #a32d40;
+  --accent-fg: #f3eee2;
+  --accent-soft: #b5485a;
+
+  --magic: #b08328; /* 金文字 (FAMILY COMPUTER) */
+  --magic-hover: #c79a3a;
+
+  --danger: #c0392b;
+  --danger-hover: #d24433;
+
+  --wave-bg: #ded5c3;
+  --wave-ruler-bg: #d0c5af;
+  --wave-grid: #c2b79e;
+  --wave-midline: #a8967c;
+  --wave-ruler-text: #7d6a5a;
+  --seg-default: #a8967c;
+  --seg-no-speaker: #7d6a5a;
+  --seg-selected: #8b2535; /* えんじで選択強調 */
+  --playhead: #8b2535;
+  --suspicion-boundary: #b45309; /* amber-700: アイボリー背景に沈める */
+
+  --spk-0: #8b2535; /* えんじ */
+  --spk-1: #b08328; /* 金 */
+  --spk-2: #4a6b4f; /* 深緑 */
+  --spk-3: #34495e; /* 紺 */
+  --spk-4: #a3582b; /* 錆 */
+  --spk-5: #6e3b5a; /* 葡萄 */
+  --spk-6: #2e6b5e; /* 青緑 */
+  --spk-7: #7a6a2b; /* 黄土 */
+  --spk-8: #566573; /* 鉛 */
+  --spk-9: #9c4a3c; /* 煉瓦 */
+}
+
+/* 明るいブラウン調 (コーヒー/レザーの落ち着いた高級感) */
+[data-theme="brown"] {
+  color-scheme: light;
+
+  --app-bg: #f3e9d8;
+  --surface: #fdf7ec;
+  --surface-2: #ece0cb;
+  --surface-hover: #ddc9a9;
+  --border: #ddccb2;
+  --border-strong: #c4ad8a;
+  --text: #3a2a1a;
+  --text-muted: #6f5840;
+  --text-faint: #9b836a;
+
+  --accent: #8a5a2b; /* coffee brown */
+  --accent-hover: #a06a33;
+  --accent-fg: #fdf7ec;
+  --accent-soft: #b07a3e;
+
+  --magic: #9c6644; /* caramel */
+  --magic-hover: #b3784f;
+
+  --danger: #b3402f;
+  --danger-hover: #c84a37;
+
+  --wave-bg: #efe2cd;
+  --wave-ruler-bg: #e6d6bb;
+  --wave-grid: #d8c4a3;
+  --wave-midline: #b89b74;
+  --wave-ruler-text: #8a7256;
+  --seg-default: #b89b74;
+  --seg-no-speaker: #8a7256;
+  --seg-selected: #3a2a1a;
+  --playhead: #b3402f;
+  --suspicion-boundary: #b45309; /* amber-700: クリーム背景に沈める */
+
+  --spk-0: #8a5a2b; /* coffee */
+  --spk-1: #c0392b; /* brick */
+  --spk-2: #b7791f; /* gold */
+  --spk-3: #6b8e23; /* olive */
+  --spk-4: #2c7a7b; /* teal */
+  --spk-5: #a0522d; /* sienna */
+  --spk-6: #9c6644; /* caramel */
+  --spk-7: #556b2f; /* dark olive */
+  --spk-8: #cd853f; /* peru */
+  --spk-9: #7b3f00; /* chocolate */
+}
+
+/* Nord (北欧系のクールな青グレー。Polar Night + Frost + Aurora) */
+[data-theme="nord"] {
+  color-scheme: dark;
+
+  --app-bg: #242933; /* Polar Night より一段暗く */
+  --surface: #2e3440; /* nord0 */
+  --surface-2: #3b4252; /* nord1 */
+  --surface-hover: #434c5e; /* nord2 */
+  --border: #3b4252;
+  --border-strong: #4c566a; /* nord3 */
+  --text: #eceff4; /* nord6 */
+  --text-muted: #d8dee9; /* nord4 */
+  --text-faint: #7b88a1;
+
+  --accent: #5e81ac; /* nord10 (Frost 濃青) */
+  --accent-hover: #81a1c1; /* nord9 */
+  --accent-fg: #eceff4;
+  --accent-soft: #88c0d0; /* nord8 */
+
+  --magic: #b48ead; /* nord15 (Aurora 紫) */
+  --magic-hover: #c8a3c2;
+
+  --danger: #bf616a; /* nord11 */
+  --danger-hover: #d0777f;
+
+  --wave-bg: #2e3440;
+  --wave-ruler-bg: #272c36;
+  --wave-grid: #3b4252;
+  --wave-midline: #4c566a;
+  --wave-ruler-text: #7b88a1;
+  --seg-default: #4c566a;
+  --seg-no-speaker: #d8dee9;
+  --seg-selected: #eceff4;
+  --playhead: #bf616a;
+  --suspicion-boundary: #ebcb8b; /* nord13: テーマ純正の黄 */
+
+  --spk-0: #88c0d0; /* frost cyan */
+  --spk-1: #ebcb8b; /* aurora yellow */
+  --spk-2: #a3be8c; /* aurora green */
+  --spk-3: #b48ead; /* aurora purple */
+  --spk-4: #81a1c1; /* frost blue */
+  --spk-5: #bf616a; /* aurora red */
+  --spk-6: #5e81ac; /* frost deep blue */
+  --spk-7: #d08770; /* aurora orange */
+  --spk-8: #8fbcbb; /* frost teal */
+  --spk-9: #b9b5a0; /* warm gray */
+}
+
+/* Game Boy (DMG-01 の緑モノクロ4階調。話者色だけは識別性のため色相を散らす) */
+[data-theme="gameboy"] {
+  color-scheme: light;
+
+  /* 薄いピクセル(ドット)グリッド。DMG の画面ドットを彷彿とさせる装飾 */
+  --app-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect x='3' y='3' width='3' height='3' fill='%230f380f' fill-opacity='0.10'/%3E%3Crect x='15' y='15' width='3' height='3' fill='%230f380f' fill-opacity='0.10'/%3E%3C/svg%3E");
+
+  --app-bg: #8bac0f; /* DMG 画面の明るい緑 */
+  --surface: #9bbc0f; /* lightest */
+  --surface-2: #82a40c;
+  --surface-hover: #6f9007;
+  --border: #6f9007;
+  --border-strong: #306230;
+  --text: #0f380f; /* darkest */
+  --text-muted: #1e4620;
+  --text-faint: #306230;
+
+  --accent: #306230; /* DMG mid-dark green */
+  --accent-hover: #0f380f;
+  --accent-fg: #9bbc0f;
+  --accent-soft: #4f7a32;
+
+  --magic: #0f380f;
+  --magic-hover: #306230;
+
+  --danger: #8b2e0f; /* 緑の中で目立つセピア寄りの警告 */
+  --danger-hover: #a8401a;
+
+  --wave-bg: #9bbc0f;
+  --wave-ruler-bg: #8bac0f;
+  --wave-grid: #82a40c;
+  --wave-midline: #306230;
+  --wave-ruler-text: #1e4620;
+  --seg-default: #306230;
+  --seg-no-speaker: #1e4620;
+  --seg-selected: #0f380f;
+  --playhead: #0f380f;
+  --suspicion-boundary: #4a5e0a; /* DMG 緑系の中で danger(セピア) と区別できる暗オリーブ */
+
+  /* モノクロ画面だと話者を判別できないので、彩度を抑えつつ色相だけ散らす */
+  --spk-0: #306230; /* DMG green */
+  --spk-1: #9a7b0f; /* olive gold */
+  --spk-2: #2f6b4f; /* teal green */
+  --spk-3: #8b3a2e; /* brick */
+  --spk-4: #3a5a8b; /* slate blue */
+  --spk-5: #7a3f6b; /* plum */
+  --spk-6: #5a7a1e; /* lime olive */
+  --spk-7: #a8581a; /* rust */
+  --spk-8: #45707a; /* dusty cyan */
+  --spk-9: #6b5a2e; /* khaki */
+}
+
+/* yusha (勇者) — ゼルダ BotW の昼の Hyrule。明るい空〜草原の余白に、
+   波形パネルだけ深いティール (水/空) で波形を映えさせる。余白には雲が
+   ゆっくり流れる (canvas は不透明なので作業領域は邪魔しない)。 */
+[data-theme="yusha"] {
+  color-scheme: light;
+
+  /* 空 → 地平 → 草原 の縦グラデを余白に敷く (canvas の外だけ見える) */
+  --app-pattern: linear-gradient(to bottom, #c2ecef 0%, #a9e0e7 28%, #cfe9c6 60%, #a3d27e 100%);
+
+  --app-bg: #bfe9ee; /* 空の淡いターコイズ (pattern のフォールバック) */
+  --surface: #f5fbfb; /* 雲のような白 */
+  --surface-2: #e4f3f3;
+  --surface-hover: #d2eaeb;
+  --border: #c3dee0;
+  --border-strong: #9cc6ca;
+  --text: #103940; /* 深いティールスレート */
+  --text-muted: #3c6b6f;
+  --text-faint: #6f9a9d;
+
+  --accent: #d9a430; /* トライフォースの金 */
+  --accent-hover: #c4901f;
+  --accent-fg: #2a1c00; /* 金地に黒文字で可読性確保 */
+  --accent-soft: #ecc35e;
+
+  --magic: #2a8fb0; /* シーカー/勇者の青緑 (分離ボタン) */
+  --magic-hover: #2079a0;
+
+  --danger: #d23f34;
+  --danger-hover: #b8362c;
+
+  /* ---- canvas: 深い Hyrule の水/空。明るい波形が映える ---- */
+  --wave-bg: #0f3b44;
+  --wave-ruler-bg: #0a2d34;
+  --wave-grid: #1c5560;
+  --wave-midline: #3f8893;
+  --wave-ruler-text: #7fb3bb;
+  --seg-default: #6f9aa0;
+  --seg-no-speaker: #b8e3e8; /* 波形ピークの色 (深ティール地に明るく) */
+  --seg-selected: #fdf6e3; /* パーチメント白 */
+  --playhead: #ffd24a; /* 金の再生ヘッド (danger 赤と区別) */
+
+  --suspicion-intruder: var(--danger);
+  --suspicion-boundary: #e07b1e; /* accent 金と被らないよう橙寄りに */
+
+  /* ---- speaker palette: Hyrule の世界の鮮やかな色 (深ティール地で判読) ---- */
+  --spk-0: #ffd24a; /* champion gold */
+  --spk-1: #5ec8e0; /* sky cyan */
+  --spk-2: #7ed957; /* Hyrule grass */
+  --spk-3: #ff8a5c; /* sunset orange */
+  --spk-4: #c08bff; /* twilight purple */
+  --spk-5: #ff6b8a; /* bloom pink */
+  --spk-6: #4ad6b0; /* spring teal */
+  --spk-7: #ffe08a; /* sand gold */
+  --spk-8: #6fa8ff; /* Hylian blue */
+  --spk-9: #b6e36a; /* lime */
+}
+
+/* 余白に漂う雲。body の背景色 (app-bg) の上・アプリ本体の下に敷き、
+   ゆっくり横に流す。canvas は不透明なので波形には一切かからない。 */
+[data-theme="yusha"] body::before {
+  content: "";
+  position: fixed;
+  inset: -10%;
+  z-index: -1;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+  /* puff を縦に散らす: 上部はアプリ本体に隠れるので、下の余白側にも漂わせる */
+  background-image:
+    radial-gradient(30% 16% at 18% 20%, rgba(255, 255, 255, 0.85), transparent 60%),
+    radial-gradient(26% 14% at 70% 14%, rgba(255, 255, 255, 0.75), transparent 60%),
+    radial-gradient(34% 18% at 40% 46%, rgba(255, 255, 255, 0.8), transparent 60%),
+    radial-gradient(24% 14% at 82% 52%, rgba(255, 255, 255, 0.7), transparent 60%),
+    radial-gradient(30% 16% at 22% 70%, rgba(255, 255, 255, 0.75), transparent 60%),
+    radial-gradient(26% 15% at 64% 78%, rgba(255, 255, 255, 0.7), transparent 60%);
+  opacity: 0.85;
+  animation: yusha-clouds 90s linear infinite;
+}
+@keyframes yusha-clouds {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+/* 動きを抑えたいユーザーには雲を静止させる (装飾は残す) */
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="yusha"] body::before {
+    animation: none;
+  }
+}
+
+/* ---- yusha-scene: 余白を横切る鳥と馬 (YushaScene.tsx) ---- */
+/* アプリ本体の裏に敷く装飾レイヤー。canvas は不透明なので波形にはかからない。 */
+.yusha-scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  /* BotW のあの黒い影。背景の空〜草原に沈む濃ティールのシルエット */
+  color: #0c343d;
+}
+.yusha-flyer,
+.yusha-gallop {
+  position: absolute;
+  left: 0;
+  opacity: 0.16;
+  will-change: transform;
+}
+/* 鳥: 横断 (translateX) しながら上下にゆるく漂う。高度/速度/間隔を散らす */
+.yusha-flyer {
+  animation: yusha-fly linear infinite;
+}
+/* 鳥はコンテンツ下の余白 (縦40〜62%) に出す。上部はアプリ本体に隠れて見えないため */
+.yusha-flyer:nth-child(1) {
+  top: 44%;
+  animation-duration: 34s;
+  animation-delay: -3s;
+  transform: scale(1);
+}
+.yusha-flyer:nth-child(2) {
+  top: 53%;
+  animation-duration: 46s;
+  animation-delay: -20s;
+  transform: scale(0.7);
+}
+.yusha-flyer:nth-child(3) {
+  top: 40%;
+  animation-duration: 40s;
+  animation-delay: -31s;
+  transform: scale(0.85);
+}
+.yusha-flyer:nth-child(4) {
+  top: 61%;
+  animation-duration: 52s;
+  animation-delay: -12s;
+  transform: scale(0.55);
+}
+.yusha-bird {
+  display: block;
+  width: 48px;
+  height: 18px;
+  overflow: visible;
+}
+.yusha-bird path {
+  fill: currentColor;
+}
+/* 翼を肩 (16,6) 支点に上下させて羽ばたき */
+.yusha-wing {
+  transform-box: view-box;
+  transform-origin: 16px 6px;
+  animation: yusha-flap 0.62s ease-in-out infinite;
+}
+.yusha-wing--r {
+  animation-name: yusha-flap-r;
+}
+
+/* 馬+勇者: 地平 (下端付近) を駆ける。大半は画面外で、たまに横切る */
+.yusha-gallop {
+  bottom: 4%;
+  opacity: 0.14;
+  animation: yusha-ride 38s linear infinite;
+}
+.yusha-rider {
+  display: block;
+  width: 72px;
+  height: 45px;
+}
+.yusha-rider path,
+.yusha-rider circle {
+  fill: currentColor;
+}
+
+@keyframes yusha-fly {
+  from {
+    transform: translate(-12vw, 0);
+  }
+  50% {
+    transform: translate(56vw, -2.2vh);
+  }
+  to {
+    transform: translate(118vw, 0);
+  }
+}
+@keyframes yusha-flap {
+  0%,
+  100% {
+    transform: rotate(-12deg);
+  }
+  50% {
+    transform: rotate(14deg);
+  }
+}
+@keyframes yusha-flap-r {
+  0%,
+  100% {
+    transform: rotate(12deg);
+  }
+  50% {
+    transform: rotate(-14deg);
+  }
+}
+/* ギャロップ: 横断 (translateX) + 上下の弾み (translateY)。
+   0〜26% で横切り、残りは画面外で待機 = たまに通る演出 */
+@keyframes yusha-ride {
+  0% {
+    transform: translate(-14vw, 0);
+  }
+  6% {
+    transform: translate(8vw, -0.6vh);
+  }
+  12% {
+    transform: translate(30vw, 0);
+  }
+  18% {
+    transform: translate(52vw, -0.6vh);
+  }
+  26% {
+    transform: translate(80vw, 0);
+  }
+  27%,
+  100% {
+    transform: translate(118vw, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yusha-scene {
+    display: none;
+  }
+}
+
+/* yozakura (夜桜) — 夜の闇に浮かぶ満開の桜。背景は藍〜墨のナイトプラム、
+   差し色は提灯の灯りのような桜ピンク。波形パネルは夜の水面 (深い藍) で
+   明るい波形が映える。余白には花びらがひらひら舞い落ちる (YozakuraScene)。 */
+[data-theme="yozakura"] {
+  color-scheme: dark;
+
+  /* 夜空: 上は墨、地平に向かってプラムが灯る縦グラデ (canvas の外だけ見える) */
+  --app-pattern: linear-gradient(to bottom, #0f0a18 0%, #1a1228 52%, #241634 100%);
+
+  --app-bg: #150e1f; /* ナイトプラム (pattern のフォールバック) */
+  --surface: #1e1530;
+  --surface-2: #2a1f40;
+  --surface-hover: #3a2c55;
+  --border: #2a1f40;
+  --border-strong: #463663;
+  --text: #f3e7f0; /* 月光の白ピンク */
+  --text-muted: #c0a8c4;
+  --text-faint: #8a7396;
+
+  --accent: #e98aa8; /* 桜ピンク */
+  --accent-hover: #f2a3bc;
+  --accent-fg: #2a0f1c; /* ピンク地に黒寄りで可読性確保 */
+  --accent-soft: #f5b9cd;
+
+  --magic: #9d7bd8; /* 月夜のラベンダー (分離ボタン) */
+  --magic-hover: #b497e6;
+
+  --danger: #e0556b;
+  --danger-hover: #ef6d82;
+
+  /* ---- canvas: 夜の水面に映る桜。明るい波形が映える ---- */
+  --wave-bg: #1a1228;
+  --wave-ruler-bg: #120c1c;
+  --wave-grid: #2a1f40;
+  --wave-midline: #5a4a73;
+  --wave-ruler-text: #8a7396;
+  --seg-default: #6a5a83;
+  --seg-no-speaker: #c0a8c4;
+  --seg-selected: #f3e7f0;
+  --playhead: #f6c453; /* 提灯の金灯り (danger 赤・accent ピンクと区別) */
+
+  --suspicion-intruder: var(--danger);
+  --suspicion-boundary: #e8a13c; /* 夜プラム背景で沈めたアンバー */
+
+  /* ---- speaker palette: 夜桜祭りの提灯のように暗いプラム地で鮮やかに ---- */
+  --spk-0: #ff9ebb; /* 桜ピンク */
+  --spk-1: #ffd98a; /* 提灯の金 */
+  --spk-2: #8fe0c0; /* 若葉ミント */
+  --spk-3: #b59bff; /* 藤ラベンダー */
+  --spk-4: #7fc8ff; /* 宵の空青 */
+  --spk-5: #ff7a90; /* 八重の濃桜 */
+  --spk-6: #c0e08a; /* 新緑 */
+  --spk-7: #ffb27a; /* 灯のオレンジ */
+  --spk-8: #6fd0e0; /* 水面シアン */
+  --spk-9: #e0a0ff; /* 紫の宵闇 */
+}
+
+/* ---- yozakura-scene: 余白を舞い落ちる桜の花びら (YozakuraScene.tsx) ---- */
+/* アプリ本体の裏に敷く装飾レイヤー。canvas は不透明なので波形にはかからない。 */
+.yozakura-scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+/* 各花びら: 縦に落ちながら (fall) 左右にゆらぐ (中の blossom が sway)。
+   位置・速度・大きさ・色味を nth-child で散らす。 */
+.yozakura-petal {
+  position: absolute;
+  top: -8vh;
+  will-change: transform;
+  animation: yozakura-fall linear infinite;
+}
+.yozakura-blossom {
+  display: block;
+  width: 18px;
+  height: 18px;
+  transform-origin: center;
+  animation: yozakura-sway ease-in-out infinite alternate;
+}
+.yozakura-blossom path {
+  fill: currentColor;
+}
+/* 桜ピンクの濃淡を交互に。落下中なので opacity も散らして奥行きを出す */
+.yozakura-petal:nth-child(odd) .yozakura-blossom {
+  color: #ffb6cf;
+}
+.yozakura-petal:nth-child(even) .yozakura-blossom {
+  color: #ff8fb3;
+}
+.yozakura-petal:nth-child(1) {
+  left: 8%;
+  opacity: 0.7;
+  animation-duration: 11s;
+  animation-delay: -2s;
+}
+.yozakura-petal:nth-child(1) .yozakura-blossom {
+  animation-duration: 2.6s;
+}
+.yozakura-petal:nth-child(2) {
+  left: 21%;
+  opacity: 0.55;
+  animation-duration: 14s;
+  animation-delay: -7s;
+}
+.yozakura-petal:nth-child(2) .yozakura-blossom {
+  width: 13px;
+  height: 13px;
+  animation-duration: 3.4s;
+}
+.yozakura-petal:nth-child(3) {
+  left: 34%;
+  opacity: 0.8;
+  animation-duration: 9.5s;
+  animation-delay: -1s;
+}
+.yozakura-petal:nth-child(3) .yozakura-blossom {
+  width: 20px;
+  height: 20px;
+  animation-duration: 2.1s;
+}
+.yozakura-petal:nth-child(4) {
+  left: 47%;
+  opacity: 0.5;
+  animation-duration: 16s;
+  animation-delay: -11s;
+}
+.yozakura-petal:nth-child(4) .yozakura-blossom {
+  width: 11px;
+  height: 11px;
+  animation-duration: 3.8s;
+}
+.yozakura-petal:nth-child(5) {
+  left: 60%;
+  opacity: 0.72;
+  animation-duration: 12s;
+  animation-delay: -5s;
+}
+.yozakura-petal:nth-child(5) .yozakura-blossom {
+  animation-duration: 2.9s;
+}
+.yozakura-petal:nth-child(6) {
+  left: 73%;
+  opacity: 0.6;
+  animation-duration: 13.5s;
+  animation-delay: -9s;
+}
+.yozakura-petal:nth-child(6) .yozakura-blossom {
+  width: 15px;
+  height: 15px;
+  animation-duration: 3.1s;
+}
+.yozakura-petal:nth-child(7) {
+  left: 85%;
+  opacity: 0.78;
+  animation-duration: 10s;
+  animation-delay: -3s;
+}
+.yozakura-petal:nth-child(7) .yozakura-blossom {
+  width: 19px;
+  height: 19px;
+  animation-duration: 2.3s;
+}
+.yozakura-petal:nth-child(8) {
+  left: 93%;
+  opacity: 0.52;
+  animation-duration: 15s;
+  animation-delay: -13s;
+}
+.yozakura-petal:nth-child(8) .yozakura-blossom {
+  width: 12px;
+  height: 12px;
+  animation-duration: 3.6s;
+}
+
+/* 落下: 画面上端の外から下端の外へ。横ドリフトは sway 側に任せる */
+@keyframes yozakura-fall {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(118vh);
+  }
+}
+/* ゆらぎ: 横移動 + 回転で「ひらひら」感。alternate で往復 */
+@keyframes yozakura-sway {
+  from {
+    transform: translateX(-14px) rotate(-50deg);
+  }
+  to {
+    transform: translateX(14px) rotate(55deg);
+  }
+}
+/* 動きを抑えたいユーザーには花びらレイヤーごと非表示 */
+@media (prefers-reduced-motion: reduce) {
+  .yozakura-scene {
+    display: none;
+  }
+}
+
+/* blackdiamond — 漆黒に沈むダークグリーンのブラックダイヤモンド。
+   ほぼ黒の地に深いエメラルドが灯り、差し色だけが宝石のように輝く。
+   余白にはファセットの煌めき (glint) がゆっくり瞬く (BlackDiamondScene)。
+   背景にはごく薄い菱形ラチス (ダイヤのカット模様) を敷く。 */
+[data-theme="blackdiamond"] {
+  color-scheme: dark;
+
+  /* ごく薄い菱形ラチス = ダイヤのファセット彫り (canvas の外だけ見える) */
+  --app-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M20 1 L39 20 L20 39 L1 20 Z' fill='none' stroke='%2300d68f' stroke-opacity='0.06' stroke-width='1'/%3E%3C/svg%3E");
+
+  --app-bg: #050807; /* 緑を帯びた漆黒 (pattern のフォールバック) */
+  --surface: #0b1410;
+  --surface-2: #122019;
+  --surface-hover: #1b2e24;
+  --border: #122019;
+  --border-strong: #1f3a2c;
+  --text: #d7f0e2; /* 淡いミントホワイト */
+  --text-muted: #7fae93;
+  --text-faint: #4e7560;
+
+  --accent: #00d68f; /* 輝くエメラルド */
+  --accent-hover: #2af0a6;
+  --accent-fg: #04140d; /* 明るい緑地に黒寄りで可読性確保 */
+  --accent-soft: #5cf0bf;
+
+  --magic: #0e9e7a; /* 深い翡翠 (分離ボタン) */
+  --magic-hover: #15b890;
+
+  --danger: #e0454f; /* 緑の中で明確に立つアラート赤 */
+  --danger-hover: #f05a64;
+
+  /* ---- canvas: エメラルドブラックの闇。明るい波形が映える ---- */
+  --wave-bg: #081410;
+  --wave-ruler-bg: #050b08;
+  --wave-grid: #122019;
+  --wave-midline: #2c5040;
+  --wave-ruler-text: #5e8a72;
+  --seg-default: #3c6650;
+  --seg-no-speaker: #7fae93;
+  --seg-selected: #6effc0; /* 選択は輝くミントで強調 */
+  --playhead: #8fe8ff; /* ファセットが弾く氷青の輝き (緑・赤と区別) */
+
+  --suspicion-intruder: var(--danger);
+  --suspicion-boundary: #f0a830; /* 漆黒地で映えるアンバー */
+
+  /* ---- speaker palette: 漆黒地に光る宝石色 (緑基調 + ファセットの煌めき) ---- */
+  --spk-0: #00d68f; /* emerald */
+  --spk-1: #6effc0; /* mint glint */
+  --spk-2: #8fe8ff; /* diamond cyan */
+  --spk-3: #a0e85c; /* lime */
+  --spk-4: #f0c674; /* gold glint */
+  --spk-5: #2bb673; /* jade */
+  --spk-6: #4ad6b0; /* spring teal */
+  --spk-7: #c8f25c; /* chartreuse */
+  --spk-8: #7fd9c0; /* pale teal */
+  --spk-9: #5cae8f; /* sage */
+}
+
+/* ---- blackdiamond-scene: 余白に瞬くファセットの煌めき (BlackDiamondScene.tsx) ---- */
+/* アプリ本体の裏に敷く装飾レイヤー。canvas は不透明なので波形にはかからない。 */
+.blackdiamond-scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  /* 漆黒に沈むエメラルドの輝き */
+  color: #2af0a6;
+}
+.bd-glint {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+  will-change: transform, opacity;
+  /* 暗く沈んだ状態から閃光のように瞬く */
+  animation: bd-twinkle ease-in-out infinite;
+}
+.bd-glint svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* 閃いた瞬間だけエメラルドのグローをまとう */
+  filter: drop-shadow(0 0 4px currentColor);
+}
+.bd-glint svg path {
+  fill: currentColor;
+}
+/* 位置・大きさ・速度・タイミング・色味を散らす (8 粒) */
+.bd-glint:nth-child(1) {
+  top: 18%;
+  left: 11%;
+  animation-duration: 4.2s;
+  animation-delay: -0.5s;
+}
+.bd-glint:nth-child(2) {
+  top: 62%;
+  left: 24%;
+  width: 9px;
+  height: 9px;
+  color: #8fe8ff;
+  animation-duration: 5.6s;
+  animation-delay: -2.4s;
+}
+.bd-glint:nth-child(3) {
+  top: 40%;
+  left: 38%;
+  width: 18px;
+  height: 18px;
+  animation-duration: 3.6s;
+  animation-delay: -1.2s;
+}
+.bd-glint:nth-child(4) {
+  top: 78%;
+  left: 52%;
+  width: 11px;
+  height: 11px;
+  color: #6effc0;
+  animation-duration: 6.4s;
+  animation-delay: -4s;
+}
+.bd-glint:nth-child(5) {
+  top: 24%;
+  left: 66%;
+  animation-duration: 4.8s;
+  animation-delay: -3.1s;
+}
+.bd-glint:nth-child(6) {
+  top: 55%;
+  left: 79%;
+  width: 16px;
+  height: 16px;
+  color: #8fe8ff;
+  animation-duration: 3.9s;
+  animation-delay: -0.9s;
+}
+.bd-glint:nth-child(7) {
+  top: 84%;
+  left: 90%;
+  width: 10px;
+  height: 10px;
+  animation-duration: 5.2s;
+  animation-delay: -2s;
+}
+.bd-glint:nth-child(8) {
+  top: 12%;
+  left: 47%;
+  width: 12px;
+  height: 12px;
+  color: #6effc0;
+  animation-duration: 4.5s;
+  animation-delay: -3.7s;
+}
+/* 瞬き: 暗→閃光→暗。ピークで一瞬大きく光る */
+@keyframes bd-twinkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4) rotate(0deg);
+  }
+  45% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1) rotate(45deg);
+  }
+  55% {
+    opacity: 0.15;
+  }
+}
+
+/* ---- ダイヤモンドの剣: ほとんど画面外、たまに下部の余白を一閃する ---- */
+/* 余白 (下端付近) を斜めに横切る間だけパッと光って消える = "時々カッコよく" 見える。
+   z-index:-1 の scene 内なので、center を通っても不透明なアプリ本体に隠れる。
+   よって visible な下端の帯を低く滑らせる (yusha-gallop と同じ発想)。 */
+.bd-sword {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 170px;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: bd-sword-slash 300s ease-in-out infinite;
+}
+.bd-sword-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* 刃が放つエメラルドのグロー (閃いた瞬間だけ opacity で見える) */
+  filter: drop-shadow(0 0 5px #2af0a6) drop-shadow(0 0 12px rgba(42, 240, 166, 0.5));
+}
+.bd-sword-blade {
+  fill: #1c8f66;
+} /* 刃の下面 (深いエメラルド) */
+.bd-sword-facet {
+  fill: #6effc0;
+} /* 刃の上面ファセット (明るいミント) */
+.bd-sword-ridge {
+  stroke: #eafff5;
+  stroke-width: 0.6;
+} /* 稜線のハイライト */
+.bd-sword-hilt {
+  fill: #f0c674;
+} /* 柄・鍔・柄頭 (金) */
+/* 切先のきらめき (常時くるくる瞬く。剣が見える瞬間だけ目に入る) */
+.bd-sword-spark {
+  fill: #ffffff;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bd-twinkle 1.4s ease-in-out infinite;
+}
+/* 一閃: 左下の外 → 下端の帯を滑り → 右下の外。残り時間 (大半) は画面外で待機。
+   300s 周期なので通過はサイクル先頭の ~1.3% (≒4s) に圧縮 = 約5分に一度サッと横切る。 */
+@keyframes bd-sword-slash {
+  0% {
+    transform: translate(-26vw, 88vh) rotate(-20deg);
+    opacity: 0;
+  }
+  0.3% {
+    opacity: 0.55;
+  }
+  0.8% {
+    transform: translate(40vw, 82vh) rotate(6deg);
+    opacity: 0.95;
+  }
+  1.3% {
+    transform: translate(124vw, 86vh) rotate(22deg);
+    opacity: 0;
+  }
+  1.5%,
+  100% {
+    transform: translate(124vw, 86vh) rotate(22deg);
+    opacity: 0;
+  }
+}
+
+/* 動きを抑えたいユーザーには煌めきレイヤーごと非表示 */
+@media (prefers-reduced-motion: reduce) {
+  .blackdiamond-scene {
+    display: none;
+  }
+}
