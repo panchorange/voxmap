@@ -3,7 +3,9 @@
 voxmap エンジンを使った GUI アプリ。話者分離アノテーション + 音声再生 + ASR を載せ、
 研究者にも一般ユーザーにも使えることを目指す。
 
-配置・依存方針は ADR (`docs/design/decisions/2026-06-02_app-layer-voxmap-studio.md`) を参照。
+このページは**セットアップと起動**の手順。ショートカットやアノテーションの進め方は
+[USAGE.md](USAGE.md) を参照。
+
 依存方向は **`apps/studio → voxmap` の一方向**。ASR は `src/voxmap/asr` /
 `src/voxmap/asr_diarization` を呼び、アプリ独自実装は持たない。
 
