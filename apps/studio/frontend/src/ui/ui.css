@@ -361,6 +361,26 @@ body {
   font-variant-numeric: tabular-nums;
   font-size: 0.85rem;
 }
+.transport__speed {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+}
+.transport__speed-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+}
+.transport__rate {
+  min-width: 3.2ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+}
 
 /* --- waveform --- */
 .waveform__toolbar {

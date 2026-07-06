@@ -1,5 +1,7 @@
 // HTMLMediaElement (Audio / Video) をラップした再生制御。
-// store には依存せず、currentTime/playing をコールバックで通知する (配線は app 側)。
+// store には依存せず、currentTime/playing/rate をコールバックで通知する (配線は app 側)。
+
+import { nextPlaybackRate } from "../domain/playback.ts";
 
 export class PlaybackController {
   private media: HTMLMediaElement = new Audio();
@@ -10,6 +12,7 @@ export class PlaybackController {
 
   onTick: (t: number) => void = () => this.warnUnwired();
   onPlayingChange: (playing: boolean) => void = () => this.warnUnwired();
+  onRateChange: (rate: number) => void = () => this.warnUnwired();
 
   private warnUnwired(): void {
     if (this.warned) return;
@@ -21,9 +24,17 @@ export class PlaybackController {
     this.media.addEventListener("ended", () => this.handleStop());
   }
 
-  /** 現在の再生速度 (カバレッジ判定用)。倍速機能はまだ無いので通常 1。 */
+  /** 現在の再生速度 (カバレッジ判定にも使う)。0.25〜1.5 倍。 */
   get rate(): number {
     return this.media.playbackRate;
+  }
+
+  /** 再生速度を1段上げ下げ (dir=+1 で速く / -1 で遅く)。両端でクランプし通知する。 */
+  stepRate(dir: 1 | -1): void {
+    const rate = nextPlaybackRate(this.media.playbackRate, dir);
+    if (rate === this.media.playbackRate) return;
+    this.media.playbackRate = rate;
+    this.onRateChange(rate);
   }
 
   attach(url: string): void {
@@ -40,6 +51,7 @@ export class PlaybackController {
     const wasPlaying = !this.media.paused;
     const prevUrl = this.media.src;
     const prevTime = this.media.currentTime;
+    const prevRate = this.media.playbackRate;
     cancelAnimationFrame(this.raf);
 
     this.media.removeEventListener("ended", this.handleStop);
@@ -48,6 +60,7 @@ export class PlaybackController {
 
     if (prevUrl) this.media.src = prevUrl;
     this.media.currentTime = prevTime;
+    this.media.playbackRate = prevRate; // 動画↔音声の切替で速度を保つ
     if (wasPlaying) void this.media.play();
   }
 
