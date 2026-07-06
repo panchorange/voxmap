@@ -52,12 +52,15 @@ Distinguishing features:
 ## Using the library directly
 
 The same engine that initializes the studio canvas can be used on its own.
+`build_pipeline` returns the speaker-diarization-3.1 pipeline; calling it on an
+`Audio` yields a `pyannote.core.Annotation`.
 
 ```python
+from voxmap.io.audio import load_audio
 from voxmap.pipeline import build_pipeline
 
 pipeline = build_pipeline("configs/pipeline/baseline.yaml")
-diarization = pipeline.run("path/to/audio.wav")
+annotation = pipeline(load_audio("path/to/audio.wav"))  # pyannote.core.Annotation
 ```
 
 ```bash
@@ -69,14 +72,16 @@ uv run python scripts/diarize.py audio.wav \
 uv run python scripts/evaluate.py --pred out.rttm --ref reference.rttm --out results/
 ```
 
-Components are swappable: each `*/base.py` defines a `Protocol`, and any class
-that satisfies it can be registered in `registry.py` and selected by name in a
-config.
+The pipeline is config-driven: the `pipeline:` block in the YAML maps straight to
+`load_diarization31_pipeline` arguments, so the segmentation/embedding models and
+clustering are swappable by editing the config (gated HF models read `HF_TOKEN`).
 
 ```yaml
-vad:        { name: silero,    threshold: 0.5 }
-embedding:  { name: wespeaker, model: voxceleb_resnet34 }
-clustering: { name: spectral,  n_clusters: null }
+pipeline:
+  segmentation_model: pyannote/segmentation-3.0
+  embedding_model:    pyannote/wespeaker-voxceleb-resnet34-LM  # or Wespeaker/wespeaker-voxceleb-campplus
+  threshold:          0.7045654963945799
+  min_cluster_fraction: 0.01
 ```
 
 ## Development

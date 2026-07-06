@@ -2,12 +2,12 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-import yaml
 
 from voxmap.io.audio import load_audio
 from voxmap.io.rttm import write_rttm
 from voxmap.log import get_logger
 from voxmap.pipeline.builder import build_pipeline
+from voxmap.types import Diarization, Segment, SpeakerTurn
 
 log = get_logger(__name__)
 app = typer.Typer()
@@ -24,14 +24,19 @@ def main(
     uri: Annotated[str | None, typer.Option(help="file URI in RTTM (default: audio stem)")] = None,
 ) -> None:
     """Run speaker diarization on an audio file."""
-    with config.open() as f:
-        cfg = yaml.safe_load(f)
-
-    pipeline = build_pipeline(cfg)
+    pipeline = build_pipeline(config)
     audio_data = load_audio(audio)
-    diarization = pipeline(audio_data, n_speakers=n_speakers)
-
     resolved_uri = uri or audio.stem
+
+    # Diarization31Pipeline は pyannote.core.Annotation を返す。RTTM 書き出しは
+    # voxmap の write_rttm を再利用するため Diarization へ変換する。
+    annotation = pipeline(audio_data, num_speakers=n_speakers, uri=resolved_uri)
+    turns = [
+        SpeakerTurn(segment=Segment(seg.start, seg.end), speaker=label)
+        for seg, _track, label in annotation.itertracks(yield_label=True)
+    ]
+    diarization = Diarization(turns=turns)
+
     output.parent.mkdir(parents=True, exist_ok=True)
     write_rttm(diarization, output, uri=resolved_uri)
     log.info("wrote_rttm", n_turns=len(diarization.turns), path=str(output))

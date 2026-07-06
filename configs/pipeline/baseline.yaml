@@ -1,18 +1,24 @@
-vad:
-  name: pyannote
-  params: {}
+# speaker-diarization-3.1 パイプラインの本番リファレンス config。
+# scripts/diarize.py (build_pipeline) と voxmap-studio が同じ load_diarization31_pipeline
+# を通す。`pipeline:` 以下のキーは load_diarization31_pipeline の引数にそのまま渡る。
+pipeline:
+  device: auto                       # auto = cuda > mps > cpu
+  segmentation_model: pyannote/segmentation-3.0
+  embedding_model: pyannote/wespeaker-voxceleb-resnet34-LM
+  threshold: 0.7045654963945799      # pyannote-3.1 の AHC 既定閾
+  method: centroid
+  min_cluster_size: 12               # min_cluster_fraction 設定時は fallback (未使用)
+  # 小クラスタ除去の閾を埋め込み点数に比例させる: mcs = max(2, round(0.01 * n))。
+  # 絶対 min_cluster_size は 1話者あたりサンプル数が dataset で ~20x 違うため両立しない
+  # (AMI ~200/話者 vs VoxConverse ~10/話者)。f=0.01 で VoxConverse stride3 の DER 損失の
+  # ~89% を回復しつつ AMI を中立に保つ。ADR: docs/design/decisions/2026-05-21_relative-mcs.md
+  min_cluster_fraction: 0.01
+  embedding_exclude_overlap: true
+  min_duration_off: 0.0
+  segmentation_step: 3.0             # = stride3 (chunk あたり embedding 呼び出しを削減)
 
-embedding:
-  name: pyannote
-  params:
-    min_duration: 0.5
-
-clustering:
-  name: ahc
-  params:
-    threshold: 0.7
-    # 小クラスタ除去の閾を埋め込み点数に比例させる: mcs = max(2, round(0.01 * n))。
-    # 絶対 min_cluster_size は 1話者あたりサンプル数が dataset で ~20x 違うため両立しない
-    # (AMI ~200/話者 vs VoxConverse ~10/話者)。f=0.01 で VoxConverse stride3 の DER 損失の
-    # ~89% を回復しつつ AMI を中立に保つ。ADR: docs/design/decisions/2026-05-21_relative-mcs.md
-    min_cluster_fraction: 0.01
+# NOTE: voxmap-studio は CAM++ + fp16 + melspec + per_chunk の高速 recipe (論文 proposed) を
+# 使う。ここではプラットフォーム非依存を優先し ResNet34・fp32・kaldi fbank を既定にしている。
+# 高速化したい場合は embedding_model を Wespeaker/wespeaker-voxceleb-campplus にし、
+# embedding_per_chunk: true / embedding_dtype: float16 / fbank_backend: melspec を足す
+# (studio の apps/studio/backend/app/config.yaml と同構成)。

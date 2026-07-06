@@ -1,25 +1,7 @@
 from typing import Any
 
 from voxmap.asr.base import ASR
-from voxmap.embedding.base import Embedder
 from voxmap.scorer.base import SpeakerScorer
-from voxmap.vad.base import VAD
-
-
-def get_vad(name: str, **kwargs: Any) -> VAD:
-    if name == "pyannote":
-        from voxmap.vad.pyannote_vad import PyannoteVAD
-
-        return PyannoteVAD(**kwargs)
-    raise ValueError(f"Unknown VAD: {name!r}")
-
-
-def get_embedder(name: str, **kwargs: Any) -> Embedder:
-    if name == "pyannote":
-        from voxmap.embedding.pyannote_emb import PyannoteEmbedder
-
-        return PyannoteEmbedder(**kwargs)
-    raise ValueError(f"Unknown embedder: {name!r}")
 
 
 def get_segmenter(name: str, **kwargs: Any) -> Any:
@@ -32,10 +14,7 @@ def get_segmenter(name: str, **kwargs: Any) -> Any:
 
 
 def get_chunk_embedder(name: str, **kwargs: Any) -> Any:
-    """Chunk-level embedder for the diarization-3.1 flow.
-
-    Different signature from `get_embedder` (which takes flat segments).
-    """
+    """Chunk-level embedder for the diarization-3.1 flow (chunk × local_speaker)."""
     if name == "wespeaker":
         from voxmap.embedding.wespeaker_emb import load_wespeaker_embedder
 
@@ -45,14 +24,6 @@ def get_chunk_embedder(name: str, **kwargs: Any) -> Any:
 
         return load_campplus_embedder(**kwargs)
     raise ValueError(f"Unknown chunk embedder: {name!r}")
-
-
-def get_clustering(name: str, **kwargs: Any) -> Any:
-    if name == "ahc":
-        from voxmap.clustering.ahc import AHC
-
-        return AHC(**kwargs)
-    raise ValueError(f"Unknown clustering: {name!r}")
 
 
 def get_scorer(name: str, **kwargs: Any) -> SpeakerScorer:
