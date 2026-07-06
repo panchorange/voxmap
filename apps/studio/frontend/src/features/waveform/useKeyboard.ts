@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { container } from "../../app/container.ts";
 import { useEditorStore } from "../../state/editorStore.ts";
 import { useModeStore } from "../../state/modeStore.ts";
 import { usePlaybackStore } from "../../state/playbackStore.ts";
@@ -6,7 +7,7 @@ import { useRecommendStore } from "../../state/recommendStore.ts";
 import { confirmHeardSelection } from "../annotation/confirm.ts";
 
 // グローバルキー: Delete/Backspace=削除, Esc=解除, Cmd/Ctrl+Z=undo, +Shift=redo,
-//   C=確認, S=再生位置で分割, R=候補パネル。入力欄フォーカス中は無視する。
+//   C=確認, S=再生位置で分割, R=候補パネル, Shift+>/< =再生速度。入力欄フォーカス中は無視する。
 export function useKeyboard(): void {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -20,6 +21,12 @@ export function useKeyboard(): void {
         e.preventDefault();
         if (e.shiftKey) ed.redo();
         else ed.undo();
+        return;
+      }
+      // Shift + > / < : 再生速度を段階変更 (0.25〜1.5倍)。> / < の入力自体が Shift を要する。
+      if ((e.key === ">" || e.key === "<") && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        container.playback.stepRate(e.key === ">" ? 1 : -1);
         return;
       }
       if (e.key === "Delete" || e.key === "Backspace") {

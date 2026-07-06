@@ -509,7 +509,7 @@ export function WaveformCanvas() {
         </button>
         <span className="faint" style={{ marginLeft: "auto", fontSize: "0.7rem" }}>
           空きドラッグ=作成 / 端=リサイズ / 本体=移動 (縦=話者変更) /
-          波形ダブルクリック=ここから再生
+          波形ダブルクリック=ここから再生 / Shift+&lt;&gt;=再生速度
         </span>
       </div>
       {/* 波形ストリップは sticky で固定し、レーンが多いとこの枠内だけ縦スクロール */}

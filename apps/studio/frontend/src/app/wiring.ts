@@ -25,6 +25,7 @@ export function wirePlayback(): void {
     pb.setCurrentTime(t);
   };
   container.playback.onPlayingChange = pb.setPlaying;
+  container.playback.onRateChange = pb.setRate;
 
   // 音声ロード時に blob URL を attach。
   let prevUrl = useAudioStore.getState().url;
