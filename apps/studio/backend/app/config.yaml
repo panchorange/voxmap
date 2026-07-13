@@ -12,6 +12,8 @@ pipeline:
   segmentation_batch_size: 32
   embedding_exclude_overlap: true
   min_duration_off: 0.0
+  # 孤立した極短区間 (false alarm 断片) を削除する。範囲 [0.1, 1.0]、0.0 で無効化。
+  min_duration_on: 0.3
   segmentation_step: 3.0 # = stride3
   embedding_per_chunk: true
   embedding_dtype: float16          # 埋め込み body を fp16 化 (DER 不変)

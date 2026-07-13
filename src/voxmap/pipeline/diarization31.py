@@ -60,6 +60,12 @@ def _reconstruct(
     return mixin.to_diarization(swf, count)
 
 
+def _validate_min_duration_on(value: float) -> None:
+    """0.0 (無効化) または [0.1, 1.0] のみ許可する。"""
+    if value != 0.0 and not (0.1 <= value <= 1.0):
+        raise ValueError(f"min_duration_on must be 0.0 (disabled) or in [0.1, 1.0], got {value!r}")
+
+
 class Diarization31Pipeline:
     """Self-implemented voxmap version of pyannote/speaker-diarization-3.1.
 
@@ -73,11 +79,14 @@ class Diarization31Pipeline:
         embedder: WeSpeakerEmbedder,
         clustering: AHC,
         min_duration_off: float = 0.0,
+        min_duration_on: float = 0.3,
     ) -> None:
+        _validate_min_duration_on(min_duration_on)
         self.segmenter = segmenter
         self.embedder = embedder
         self.clustering = clustering
         self.min_duration_off = min_duration_off
+        self.min_duration_on = min_duration_on
         self._mixin = SpeakerDiarizationMixin()
 
     def __call__(
@@ -86,10 +95,20 @@ class Diarization31Pipeline:
         num_speakers: int | None = None,
         min_speakers: int | None = None,
         max_speakers: int | None = None,
+        min_duration_on: float | None = None,
         uri: str = "audio",
         hook: Callable[..., Any] | None = None,
     ) -> Annotation:
-        """Run full diarization. Returns a pyannote.core.Annotation."""
+        """Run full diarization. Returns a pyannote.core.Annotation.
+
+        min_duration_on: per-call override of the constructor default (see
+        __init__). Must be 0.0 (disabled) or in [0.1, 1.0] when given; None
+        uses the instance default (self.min_duration_on).
+        """
+        effective_min_duration_on = (
+            self.min_duration_on if min_duration_on is None else min_duration_on
+        )
+        _validate_min_duration_on(effective_min_duration_on)
 
         num_speakers, min_speakers, max_speakers = self._mixin.set_num_speakers(
             num_speakers=num_speakers,
@@ -148,7 +167,7 @@ class Diarization31Pipeline:
 
         diarization = self._mixin.to_annotation(
             discrete,
-            min_duration_on=0.0,
+            min_duration_on=effective_min_duration_on,
             min_duration_off=self.min_duration_off,
         )
         diarization.uri = uri
@@ -188,6 +207,7 @@ def load_diarization31_pipeline(
     segmentation_batch_size: int = 32,
     embedding_exclude_overlap: bool = True,
     min_duration_off: float = 0.0,
+    min_duration_on: float = 0.3,
     segmentation_step: float | None = None,
     embedding_per_chunk: bool = False,
     embedding_dtype: str = "float32",
@@ -198,6 +218,11 @@ def load_diarization31_pipeline(
 ) -> Diarization31Pipeline:
     """Convenience: load the full speaker-diarization-3.1 stack into voxmap.
 
+    min_duration_on: drop hypothesis segments shorter than this (seconds).
+        Suppresses isolated short false-alarm fragments at the cost of a
+        (smaller) increase in missed detection. Must be 0.0 (disabled) or in
+        [0.1, 1.0]; default 0.3 is a conservative balance between DER gain and
+        the precision of what gets removed.
     segmentation_step: sliding-window step in seconds. None → 10% of chunk
         duration (pyannote default = 1.0s for 10s chunks). Larger values
         reduce chunk count (and embedding calls) at the cost of resolution.
@@ -273,4 +298,5 @@ def load_diarization31_pipeline(
         embedder=embedder,
         clustering=clusterer,
         min_duration_off=min_duration_off,
+        min_duration_on=min_duration_on,
     )

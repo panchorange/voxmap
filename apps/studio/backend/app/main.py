@@ -98,8 +98,17 @@ async def gallery_preview(name: str) -> FileResponse:
 async def diarize(
     file: Annotated[UploadFile, File()],
     n_speakers: Annotated[int | None, Form()] = None,
+    min_duration_on: Annotated[float | None, Form()] = None,
 ) -> dict[str, Any]:
     assert state.pipeline is not None  # lifespan でロード済み
+    if (
+        min_duration_on is not None
+        and min_duration_on != 0.0
+        and not (0.1 <= min_duration_on <= 1.0)
+    ):
+        raise HTTPException(
+            status_code=400, detail="min_duration_on must be 0.0 (disabled) or in [0.1, 1.0]"
+        )
     filename = file.filename or "audio"
     data = await file.read()
 
@@ -112,7 +121,13 @@ async def diarize(
     try:
         async with state.lock:
             result = await asyncio.to_thread(
-                diarize_file, state.pipeline, tmp_path, n_speakers, delta, rec_threshold
+                diarize_file,
+                state.pipeline,
+                tmp_path,
+                n_speakers,
+                delta,
+                rec_threshold,
+                min_duration_on,
             )
     finally:
         tmp_path.unlink(missing_ok=True)

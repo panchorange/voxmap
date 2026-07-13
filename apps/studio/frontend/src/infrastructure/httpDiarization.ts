@@ -22,10 +22,15 @@ interface DiarizeResponse {
 export class HttpDiarization implements DiarizationService {
   constructor(private readonly baseUrl = "/api") {}
 
-  async diarize(file: File, numSpeakers?: number | null): Promise<DiarizationResult> {
+  async diarize(
+    file: File,
+    numSpeakers?: number | null,
+    minDurationOn?: number | null,
+  ): Promise<DiarizationResult> {
     const form = new FormData();
     form.append("file", file);
     if (numSpeakers != null) form.append("n_speakers", String(numSpeakers));
+    if (minDurationOn != null) form.append("min_duration_on", String(minDurationOn));
     const res = await fetch(`${this.baseUrl}/diarize`, { method: "POST", body: form });
     if (!res.ok) {
       throw new Error(`diarize failed: ${res.status} ${res.statusText}`);

@@ -3,7 +3,11 @@ import type { DiarizationResult, DiarizationService, SignalPatch } from "../appl
 // 現状はスタブ (仕様 L80)。本番は httpDiarization に差し替える。
 // ギャラリ照合はバックエンド側のため、スタブでは対応提案は空で返す。
 export class StubDiarization implements DiarizationService {
-  async diarize(_file: File, _numSpeakers?: number | null): Promise<DiarizationResult> {
+  async diarize(
+    _file: File,
+    _numSpeakers?: number | null,
+    _minDurationOn?: number | null,
+  ): Promise<DiarizationResult> {
     return {
       segments: [
         { id: "stub-0", start: 0, end: 2, speaker: "SPEAKER_00", status: "auto" },

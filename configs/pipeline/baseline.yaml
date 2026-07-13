@@ -15,6 +15,9 @@ pipeline:
   min_cluster_fraction: 0.01
   embedding_exclude_overlap: true
   min_duration_off: 0.0
+  # 孤立した極短区間 (false alarm 断片) を削除する。範囲 [0.1, 1.0]、0.0 で無効化。
+  # 0.3 は DER 改善と削除区間の的中率のバランスが良い保守的な値。
+  min_duration_on: 0.3
   segmentation_step: 3.0             # = stride3 (chunk あたり embedding 呼び出しを削減)
 
 # NOTE: voxmap-studio は CAM++ + fp16 + melspec + per_chunk の高速 recipe (論文 proposed) を
