@@ -254,3 +254,6 @@ node_modules/
 # local editor / claude permission config (not for public repo)
 .vscode/
 .claude/settings.json
+
+# personal port/release workflow skill (references private voxmap-lab repo)
+.claude/skills/port-release/

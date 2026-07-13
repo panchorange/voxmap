@@ -119,6 +119,7 @@ export function App() {
   const [diarizing, setDiarizing] = useState(false);
   const [speakerAuto, setSpeakerAuto] = useState(true); // true = AUTO (話者数推定)
   const [speakerText, setSpeakerText] = useState("2"); // 手動時の話者数 (自由入力)
+  const [minDurationOn, setMinDurationOn] = useState(0.3); // 短区間抑制の閾値 (秒)
   const [mapping, setMapping] = useState<DiarizeOutcome | null>(null); // 一括対応ポップアップ
   const [error, setError] = useState<string | null>(null);
   const [draftPrompt, setDraftPrompt] = useState<DraftRecord | null>(null); // 起動時の復元候補
@@ -129,6 +130,8 @@ export function App() {
 
   // 話者数の手動入力バリデーション: 1〜MAX_SPEAKERS の整数のみ許可。AUTO 時は無視。
   const MAX_SPEAKERS = 30;
+  // 短区間抑制の閾値。0 = OFF (無効化)、以降 0.1 刻み。select にして無効値を構造的に排除する。
+  const MIN_DURATION_OPTIONS = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
   const speakerCount = /^\d+$/.test(speakerText) ? Number(speakerText) : Number.NaN;
   const speakerValid =
     speakerAuto ||
@@ -306,6 +309,21 @@ export function App() {
               onChange={(e) => setSpeakerText(e.target.value)}
             />
           </div>
+          <div className="speaker-count" title={t("header.minDurationOn.title")}>
+            <span className="speaker-count__label">{t("header.minDurationOn")}</span>
+            <select
+              className="select"
+              disabled={!hasAudio || diarizing}
+              value={minDurationOn}
+              onChange={(e) => setMinDurationOn(Number(e.target.value))}
+            >
+              {MIN_DURATION_OPTIONS.map((v) => (
+                <option key={v} value={v}>
+                  {v === 0 ? "OFF" : `${v.toFixed(1)}s`}
+                </option>
+              ))}
+            </select>
+          </div>
           <button
             type="button"
             className="btn btn--magic"
@@ -319,7 +337,10 @@ export function App() {
               setError(null);
               setDiarizing(true);
               try {
-                const outcome = await runDiarization(speakerAuto ? null : speakerCount);
+                const outcome = await runDiarization(
+                  speakerAuto ? null : speakerCount,
+                  minDurationOn,
+                );
                 // 既知話者に対応づく提案が1つでもあれば一括対応ポップアップを出す。
                 if (outcome.clusterMapping.some((m) => m.speaker !== null)) {
                   setMapping(outcome);

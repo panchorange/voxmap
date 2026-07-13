@@ -17,12 +17,18 @@ export interface DiarizeOutcome {
   galleryNames: string[];
 }
 
-/** numSpeakers: 話者数を固定 (null = AUTO で推定)。 */
-export async function runDiarization(numSpeakers: number | null = null): Promise<DiarizeOutcome> {
+/**
+ * numSpeakers: 話者数を固定 (null = AUTO で推定)。
+ * minDurationOn: 短区間抑制の閾値・秒 (null = backend config のデフォルト 0.3 を使う)。
+ */
+export async function runDiarization(
+  numSpeakers: number | null = null,
+  minDurationOn: number | null = null,
+): Promise<DiarizeOutcome> {
   const audioState = useAudioStore.getState();
   const file = audioState.file;
   if (!file) return { clusterMapping: [], galleryNames: [] };
-  const result = await container.diarization.diarize(file, numSpeakers);
+  const result = await container.diarization.diarize(file, numSpeakers, minDurationOn);
 
   const catchEnabled = useModeStore.getState().mode === "annotation";
   const duration = audioState.audio?.duration ?? 0;

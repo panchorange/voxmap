@@ -40,6 +40,11 @@ export const MESSAGES = {
     en: "Set number of speakers (AUTO = estimate)",
   },
   "header.speakerCount.range": { ja: "1〜{max} の整数", en: "integer 1–{max}" },
+  "header.minDurationOn": { ja: "未満削除", en: "Drop <" },
+  "header.minDurationOn.title": {
+    ja: "これ未満の短い区間を削除する (OFF で無効化)",
+    en: "Remove segments shorter than this (OFF disables it)",
+  },
   "header.diarize": { ja: "話者分離", en: "Diarize" },
   "header.diarize.running": { ja: "分離中…", en: "Diarizing…" },
   "header.diarize.title": {

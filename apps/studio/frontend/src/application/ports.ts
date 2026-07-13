@@ -35,8 +35,14 @@ export interface SignalPatch {
 /** 話者分離。スタブ or /api 経由の本番をアダプタで切り替える。 */
 export interface DiarizationService {
   /** 音声から区間 + 一括対応提案を返す。
-   *  numSpeakers を渡すと話者数を固定 (null/未指定 = AUTO で推定)。 */
-  diarize(file: File, numSpeakers?: number | null): Promise<DiarizationResult>;
+   *  numSpeakers を渡すと話者数を固定 (null/未指定 = AUTO で推定)。
+   *  minDurationOn を渡すと短区間抑制の閾値 (秒, [0.1, 1.0]) を上書きする
+   *  (null/未指定 = backend config のデフォルト 0.3 を使う)。 */
+  diarize(
+    file: File,
+    numSpeakers?: number | null,
+    minDurationOn?: number | null,
+  ): Promise<DiarizationResult>;
   /**
    * 編集後の区間に怪しさ/レコメンドを追従させる (再埋め込みなし、分離後のみ)。
    * 分離前/グリッド無しは空配列を返す。

@@ -47,6 +47,7 @@ def build_pipeline(config: str | Path | dict[str, Any]) -> Diarization31Pipeline
         segmentation_batch_size=int(p.get("segmentation_batch_size", 32)),
         embedding_exclude_overlap=bool(p.get("embedding_exclude_overlap", True)),
         min_duration_off=float(p.get("min_duration_off", 0.0)),
+        min_duration_on=float(p.get("min_duration_on", 0.3)),
         segmentation_step=p.get("segmentation_step"),
         embedding_per_chunk=bool(p.get("embedding_per_chunk", False)),
         embedding_dtype=str(p.get("embedding_dtype", "float32")),

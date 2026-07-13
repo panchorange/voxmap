@@ -87,6 +87,7 @@ def build_pipeline(config: dict[str, Any], device: torch.device) -> Diarization3
         segmentation_batch_size=int(p.get("segmentation_batch_size", 32)),
         embedding_exclude_overlap=bool(p.get("embedding_exclude_overlap", True)),
         min_duration_off=float(p.get("min_duration_off", 0.0)),
+        min_duration_on=float(p.get("min_duration_on", 0.3)),
         segmentation_step=p.get("segmentation_step"),
         embedding_per_chunk=bool(p.get("embedding_per_chunk", False)),
         embedding_dtype=str(p.get("embedding_dtype", "float32")),
@@ -102,18 +103,24 @@ def diarize_file(
     num_speakers: int | None = None,
     suspicion_delta: float = 0.05,
     recommend_threshold: float = 0.3,
+    min_duration_on: float | None = None,
 ) -> DiarizeResult:
     """音声ファイルを分離し、segment 一覧と auto クラスタ重心・怪しさを返す。
 
     重心はクラスタリングが既に算出したもの (`hook("centroids", ...)`) を拾うだけで、
     レコメンド用に segment を再埋め込みしない (設計§7 の RTF 影響なしを実現)。
     怪しさ判定も既に算出済みの embeddings / hard_clusters / segmentation を再利用するだけ。
+
+    min_duration_on: 呼び出し単位で config デフォルト (0.3) を上書きする (範囲 [0.1, 1.0]、
+    妥当性チェックは pipeline 側の ValueError に委ねる)。None ならデフォルトを使う。
     """
     audio = load_audio(path)
     audio_seconds = audio.waveform.shape[-1] / audio.sample_rate
     kwargs: dict[str, Any] = {}
     if num_speakers is not None:
         kwargs["num_speakers"] = num_speakers
+    if min_duration_on is not None:
+        kwargs["min_duration_on"] = min_duration_on
 
     centroids: dict[str, NDArray[np.float32]] = {}
     cap: dict[str, Any] = {}  # embeddings / hard_clusters / segmentation / label_mapping
