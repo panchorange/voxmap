@@ -16,3 +16,4 @@
 - `.claude/rules/branching.md` — ブランチ命名 + 切り口の整理 + ADR
 - `.claude/rules/skills.md` — skills 一覧
 - `.claude/rules/gcs-layout.md` — GCS の結果保管レイアウト (`<kind>/<theme>/<id>/results/`) + 同期方法
+- `.claude/rules/versioning.md` — SemVer 運用 (0系の扱い・MINOR/PATCH の判断) + CHANGELOG (Keep a Changelog) + リリースノートの位置づけ
