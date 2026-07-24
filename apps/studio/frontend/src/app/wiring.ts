@@ -19,7 +19,7 @@ export function wirePlayback(): void {
   let prevT = pb.currentTime;
   container.playback.onTick = (t) => {
     if (usePlaybackStore.getState().playing) {
-      useCoverageStore.getState().mark(prevT, t, container.playback.rate);
+      useCoverageStore.getState().mark(prevT, t);
     }
     prevT = t;
     pb.setCurrentTime(t);

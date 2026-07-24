@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-07-24
+
+### Fixed
+- voxmap-studio: 波形の早送り・高速再生 (1.25x/1.5x) で再生した区間が「聞いた
+  (heard)」としてカウントされず、`C` キーでの確認 (confirm) が拒否される不具合を修正。
+  `coverageStore.mark()` が `rate > 1` の再生を丸ごとカバレッジ対象から除外していたのが
+  原因 (シーク跨ぎの除外ロジックは意図通りのため維持)。
+
 ## [0.2.0] - 2026-07-13
 
 ### Added
@@ -26,5 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   config. Set `min_duration_on: 0.0` in your pipeline config to restore the old
   behavior.
 
-[Unreleased]: https://github.com/panchorange/voxmap/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/panchorange/voxmap/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/panchorange/voxmap/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/panchorange/voxmap/releases/tag/v0.2.0

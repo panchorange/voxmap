@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 // 再生済み区間を 0.1s バケットで記録する。アノテーションモードの「聴いたか」を可視化し、
-// 確認 (confirm) の前提条件にも使う補助シグナル。倍速再生・シーク跨ぎはカウントしない。
+// 確認 (confirm) の前提条件にも使う補助シグナル。シーク跨ぎ (聴いていない区間) はカウントしない。
 
 export const BUCKET_SEC = 0.1;
 /** これを超える時間ギャップはシーク跨ぎとみなし、間を埋めない。 */
@@ -14,8 +14,8 @@ interface CoverageState {
   /** バケット集合が変わるたびに増える (描画トリガ用)。 */
   version: number;
   reset(duration: number): void;
-  /** prevT→t を再生済みにする。rate>1 (倍速) は無視。 */
-  mark(prevT: number, t: number, rate: number): void;
+  /** prevT→t を再生済みにする。 */
+  mark(prevT: number, t: number): void;
   percentHeard(): number;
   /** 区間 [start,end] が完全に再生済みか。 */
   heardSpan(start: number, end: number): boolean;
@@ -36,8 +36,7 @@ export const useCoverageStore = create<CoverageState>((set, get) => ({
     set({ duration, heard: new Uint8Array(n), heardCount: 0, version: get().version + 1 });
   },
 
-  mark(prevT, t, rate) {
-    if (rate > 1.0001) return;
+  mark(prevT, t) {
     const { heard } = get();
     const n = heard.length;
     if (n === 0) return;
