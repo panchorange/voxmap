@@ -7,7 +7,7 @@ const cov = () => useCoverageStore.getState();
 function play(from: number, to: number): void {
   let prev = from;
   for (let t = from + 0.02; t <= to + 1e-9; t += 0.02) {
-    cov().mark(prev, t, 1);
+    cov().mark(prev, t);
     prev = t;
   }
 }
@@ -23,13 +23,18 @@ describe("coverageStore", () => {
     expect(cov().percentHeard()).toBeCloseTo(0.1, 1);
   });
 
-  test("倍速 (rate>1) は無視", () => {
-    cov().mark(0, 5, 2);
-    expect(cov().percentHeard()).toBe(0);
+  test("倍速再生 (連続tickだが1tickあたりの進みが大きい) も間を埋める", () => {
+    // 1.5倍速の連続再生を模擬 (rAF tick毎に実時間の1.5倍だけ位置が進む)。
+    let prev = 0;
+    for (let t = 0.03; t <= 1 + 1e-9; t += 0.03) {
+      cov().mark(prev, t);
+      prev = t;
+    }
+    expect(cov().heardSpan(0, 1)).toBe(true);
   });
 
   test("シーク跨ぎ (gap>0.3) は間を埋めない", () => {
-    cov().mark(0, 5, 1); // 5s ジャンプ → 着地バケットのみ
+    cov().mark(0, 5); // 5s ジャンプ → 着地バケットのみ
     expect(cov().heardSpan(0, 1)).toBe(false);
     expect(cov().heardSpan(5, 5.05)).toBe(true);
   });
