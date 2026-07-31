@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- voxmap-studio: テーマ `Yell` を追加。夏のエールビールをモチーフにした淡いクリーム地 +
+  琥珀オレンジの差し色で、余白には炭酸の泡がゆっくり立ちのぼる (`prefers-reduced-motion`
+  時はアニメーションレイヤーごと非表示)。
+
+### Changed
+- voxmap-studio: テーマ `Game Boy` / `Brown` / `Black Diamond` をテーマ選択プルダウンから
+  非表示にした。**実装 (CSS ブロック) は残してある**ので、既にそれらを選んでいる場合は
+  引き続き有効 (その間だけプルダウンにも表示される)。
+
 ## [0.2.2] - 2026-07-31
 
 ### Fixed

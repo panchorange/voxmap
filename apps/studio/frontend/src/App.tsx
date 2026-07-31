@@ -40,6 +40,7 @@ import { useT } from "./ui/i18n/t.ts";
 import { BlackDiamondScene } from "./ui/theme/BlackDiamondScene.tsx";
 import { ThemeSwitcher } from "./ui/theme/ThemeSwitcher.tsx";
 import { useTheme } from "./ui/theme/useTheme.ts";
+import { YellScene } from "./ui/theme/YellScene.tsx";
 import { YozakuraScene } from "./ui/theme/YozakuraScene.tsx";
 import { YushaScene } from "./ui/theme/YushaScene.tsx";
 
@@ -230,6 +231,7 @@ export function App() {
       {theme === "yusha" && <YushaScene />}
       {theme === "yozakura" && <YozakuraScene />}
       {theme === "blackdiamond" && <BlackDiamondScene />}
+      {theme === "yell" && <YellScene />}
       {dragOver && <div className="dropzone-overlay">{t("dropzone.hint")}</div>}
 
       <header className={`app__header${annotation ? " app__header--annotation" : ""}`}>
