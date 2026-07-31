@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-07-31
+
 ### Fixed
 - voxmap-studio: 公開前 (repo 改名前) の studio が `tool: "speaker-diarization-studio"` で
   書き出した途中保存 json (savepoint) を読み込めず、エラーも出ないまま無反応になる不具合を
@@ -44,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   config. Set `min_duration_on: 0.0` in your pipeline config to restore the old
   behavior.
 
-[Unreleased]: https://github.com/panchorange/voxmap/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/panchorange/voxmap/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/panchorange/voxmap/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/panchorange/voxmap/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/panchorange/voxmap/releases/tag/v0.2.0
