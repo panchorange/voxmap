@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- voxmap-studio: 公開前 (repo 改名前) の studio が `tool: "speaker-diarization-studio"` で
+  書き出した途中保存 json (savepoint) を読み込めず、エラーも出ないまま無反応になる不具合を
+  修正。読み込み時は現行名 `voxmap-studio` と旧名の両方を受け付ける (書き出しは現行名のみ)。
+  `integrity` ハッシュは `fileId + segments` から計算し `tool` を含まないため、旧名 json でも
+  改変警告 (tampered) は出ない。
+- voxmap-studio: 読み込めなかった json が黙って無視されていたのをやめ、通知バナーに拒否理由
+  (JSON として不正 / `tool` が非対応 — 実際の値を表示 / `segments` が配列でない) と読み込みに
+  必要な条件を表示するようにした。i18n (JA/EN) 込み。
+
 ## [0.2.1] - 2026-07-24
 
 ### Fixed

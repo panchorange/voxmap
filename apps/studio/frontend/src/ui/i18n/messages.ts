@@ -126,6 +126,36 @@ export const MESSAGES = {
     en: "Audio not loaded — load it via the “Audio/Video” button",
   },
 
+  // ---- json (savepoint) を読み込めなかったときの理由 + 条件 ----
+  "notice.sidecarRejected": {
+    ja: "{source} を読み込めませんでした — {reason}。{requirements}",
+    en: "Could not load {source} — {reason}. {requirements}",
+  },
+  "notice.sidecarRequirements": {
+    ja: "読み込み条件: JSON として妥当 / tool が {tools} のいずれか / segments が配列 (各要素に start・end・speaker・provenance)",
+    en: "Requirements: valid JSON / tool is one of {tools} / segments is an array (each item with start, end, speaker, provenance)",
+  },
+  "notice.sidecarRejectNotJson": {
+    ja: "JSON として解析できません",
+    en: "not valid JSON",
+  },
+  "notice.sidecarRejectNotObject": {
+    ja: "JSON のトップレベルがオブジェクトではありません",
+    en: "the top-level JSON value is not an object",
+  },
+  "notice.sidecarRejectToolMismatch": {
+    ja: 'tool = "{tool}" は対応していません',
+    en: 'unsupported tool = "{tool}"',
+  },
+  "notice.sidecarRejectToolMissing": {
+    ja: "tool フィールドがありません (文字列で必要)",
+    en: "the tool field is missing (a string is required)",
+  },
+  "notice.sidecarRejectSegments": {
+    ja: "segments が配列ではありません",
+    en: "segments is not an array",
+  },
+
   // ---- 自動分離エラー ----
   "diarize.failed": {
     ja: "自動分離に失敗しました: {msg} (backend が起動しているか確認してください: make studio-be-dev)",

@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { buildSidecar, parseSidecar, serializeSidecar } from "./sidecar.ts";
+import {
+  ACCEPTED_TOOLS,
+  buildSidecar,
+  parseSidecar,
+  readSidecar,
+  serializeSidecar,
+} from "./sidecar.ts";
 import type { Segment } from "./types.ts";
 
 const seg = (start: number, status: Segment["status"]): Segment => ({
@@ -83,6 +89,30 @@ describe("parseSidecar (savepoint 再開)", () => {
     expect(parseSidecar("not json")).toBeNull();
   });
 
+  // 公開前 (repo 改名前) の studio は tool: "speaker-diarization-studio" で書き出していた。
+  const legacy = (): string => {
+    const obj = JSON.parse(serializeSidecar(input));
+    obj.tool = "speaker-diarization-studio";
+    return JSON.stringify(obj);
+  };
+
+  test("旧ツール名 (speaker-diarization-studio) の json も読み込める", () => {
+    const parsed = parseSidecar(legacy());
+    expect(parsed).not.toBeNull();
+    expect(parsed?.fileId).toBe("ES2004a");
+    expect(parsed?.segments.map((s) => s.status)).toEqual(["confirmed", "auto", "edited"]);
+  });
+
+  test("旧ツール名に差し替えただけなら tampered=false (integrity は tool を含まない)", () => {
+    expect(parseSidecar(legacy())?.tampered).toBe(false);
+  });
+
+  test("書き出しは常に現行名 (旧名で書き出さない)", () => {
+    const out = buildSidecar(input);
+    expect(out.tool).toBe("voxmap-studio");
+    expect(ACCEPTED_TOOLS).toEqual(["voxmap-studio", "speaker-diarization-studio"]);
+  });
+
   test("exportedAt は任意", () => {
     const out = buildSidecar({
       fileId: "x",
@@ -136,5 +166,72 @@ describe("parseSidecar (savepoint 再開)", () => {
     obj.summary.cost = { activeSec: "nope" };
     const parsed = parseSidecar(JSON.stringify(obj));
     expect(parsed?.cost).toBeUndefined();
+  });
+});
+
+// 読み込めない json は「何も起きない」ではなく理由を出す。理由の区別をここで固定する。
+describe("readSidecar (拒否理由)", () => {
+  const input = {
+    fileId: "ES2004a",
+    mode: "annotation",
+    segments: [seg(0, "confirmed")],
+    percentHeard: 0.5,
+    catch: { total: 0, caught: 0, kept: 0, missed: 0 },
+  };
+
+  test("JSON として解析できない", () => {
+    expect(readSidecar("not json")).toEqual({ ok: false, reject: { reason: "not-json" } });
+  });
+
+  test("トップレベルがオブジェクトでない", () => {
+    expect(readSidecar("42")).toEqual({ ok: false, reject: { reason: "not-object" } });
+    expect(readSidecar("null")).toEqual({ ok: false, reject: { reason: "not-object" } });
+  });
+
+  test("tool が非対応なら実際に入っていた値を返す", () => {
+    expect(readSidecar('{"tool":"audacity","segments":[]}')).toEqual({
+      ok: false,
+      reject: { reason: "tool-mismatch", tool: "audacity" },
+    });
+  });
+
+  test("tool が欠落 / 非文字列なら tool=null", () => {
+    expect(readSidecar('{"segments":[]}')).toEqual({
+      ok: false,
+      reject: { reason: "tool-mismatch", tool: null },
+    });
+    expect(readSidecar('{"tool":123,"segments":[]}')).toEqual({
+      ok: false,
+      reject: { reason: "tool-mismatch", tool: null },
+    });
+    // 配列も typeof "object" なので tool 欠落として扱われる
+    expect(readSidecar("[1,2]")).toEqual({
+      ok: false,
+      reject: { reason: "tool-mismatch", tool: null },
+    });
+  });
+
+  test("segments が配列でない (tool は対応名)", () => {
+    const obj = JSON.parse(serializeSidecar(input));
+    obj.segments = "nope";
+    expect(readSidecar(JSON.stringify(obj))).toEqual({
+      ok: false,
+      reject: { reason: "segments-not-array" },
+    });
+  });
+
+  test("成功時は sidecar を返す (parseSidecar と同値)", () => {
+    const text = serializeSidecar(input);
+    const read = readSidecar(text);
+    expect(read.ok).toBe(true);
+    expect(read.ok ? read.sidecar : null).toEqual(parseSidecar(text));
+  });
+
+  test("旧ツール名も ok で返る", () => {
+    const obj = JSON.parse(serializeSidecar(input));
+    obj.tool = "speaker-diarization-studio";
+    const read = readSidecar(JSON.stringify(obj));
+    expect(read.ok).toBe(true);
+    expect(read.ok && read.sidecar.tampered).toBe(false);
   });
 });
