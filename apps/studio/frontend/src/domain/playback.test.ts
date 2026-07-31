@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { DEFAULT_RATE, nextPlaybackRate, PLAYBACK_RATES } from "./playback.ts";
+import { clampRate, DEFAULT_RATE, nextPlaybackRate, PLAYBACK_RATES } from "./playback.ts";
 
 describe("nextPlaybackRate", () => {
   it("等速から1段上げ下げ", () => {
@@ -38,5 +38,34 @@ describe("nextPlaybackRate", () => {
   it("既定は等速", () => {
     expect(DEFAULT_RATE).toBe(1);
     expect(PLAYBACK_RATES).toContain(DEFAULT_RATE);
+  });
+});
+
+describe("clampRate", () => {
+  it("範囲内の値はそのまま", () => {
+    expect(clampRate(1.15)).toBe(1.15);
+    expect(clampRate(1.2)).toBe(1.2);
+  });
+
+  it("下端未満は下端にクランプ", () => {
+    const min = PLAYBACK_RATES[0] ?? DEFAULT_RATE;
+    expect(clampRate(0)).toBe(min);
+    expect(clampRate(-1)).toBe(min);
+  });
+
+  it("上端超過は上端にクランプ", () => {
+    const max = PLAYBACK_RATES[PLAYBACK_RATES.length - 1] ?? DEFAULT_RATE;
+    expect(clampRate(99)).toBe(max);
+  });
+
+  it("NaNは既定速度にフォールバック", () => {
+    expect(clampRate(Number.NaN)).toBe(DEFAULT_RATE);
+  });
+
+  it("境界値 (下限・上限ちょうど) はそのまま通す", () => {
+    const min = PLAYBACK_RATES[0] ?? DEFAULT_RATE;
+    const max = PLAYBACK_RATES[PLAYBACK_RATES.length - 1] ?? DEFAULT_RATE;
+    expect(clampRate(min)).toBe(min);
+    expect(clampRate(max)).toBe(max);
   });
 });

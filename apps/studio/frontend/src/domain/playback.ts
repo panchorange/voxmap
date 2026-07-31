@@ -25,3 +25,17 @@ export function nextPlaybackRate(current: number, dir: 1 | -1): number {
   idx = Math.min(PLAYBACK_RATES.length - 1, Math.max(0, idx + dir));
   return PLAYBACK_RATES[idx] ?? DEFAULT_RATE;
 }
+
+/** 再生速度の下限・上限 (倍)。直接入力のクランプ・段階ボタンの無効化判定で共用する。 */
+export const RATE_MIN = PLAYBACK_RATES[0] ?? DEFAULT_RATE;
+export const RATE_MAX = PLAYBACK_RATES[PLAYBACK_RATES.length - 1] ?? DEFAULT_RATE;
+
+/**
+ * 任意の値を再生速度として使える範囲にクランプする (直接入力用)。
+ * 段階 (PLAYBACK_RATES) には縛られず、1.15 / 1.20 のような細かい値もそのまま通す。
+ * 数値化できない入力は既定速度にフォールバックする。
+ */
+export function clampRate(value: number): number {
+  if (Number.isNaN(value)) return DEFAULT_RATE;
+  return Math.min(RATE_MAX, Math.max(RATE_MIN, value));
+}
