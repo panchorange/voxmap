@@ -12,9 +12,23 @@ export const THEMES = [
   { id: "yusha", label: "Yusha" },
   { id: "yozakura", label: "Yozakura" },
   { id: "blackdiamond", label: "Black Diamond" },
+  { id: "yell", label: "Yell" },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]["id"];
+
+/**
+ * プルダウンに出さないテーマ。**実装 (CSS ブロック) は残す**ので、保存済み設定や
+ * 手動で data-theme を差し替えた場合は引き続き有効。棚から下げるだけの一覧。
+ */
+const HIDDEN_THEMES: readonly ThemeId[] = ["gameboy", "brown", "blackdiamond"];
+
+/** プルダウンに並べるテーマ。THEMES から HIDDEN_THEMES を除いたもの。 */
+export const VISIBLE_THEMES = THEMES.filter((t) => !HIDDEN_THEMES.includes(t.id));
+
+export function isHiddenTheme(id: ThemeId): boolean {
+  return HIDDEN_THEMES.includes(id);
+}
 
 const STORAGE_KEY = "voxmap-studio.theme";
 const DEFAULT_THEME: ThemeId = "dark";

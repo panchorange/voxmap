@@ -1040,3 +1040,213 @@
     display: none;
   }
 }
+
+/* yell — 夏のエールビール。よく冷えたグラスのクリーム色の地に、
+   琥珀オレンジ (ホップの効いたエール) が差し色。緑黄のシトラスが抜け感を作る。
+   長時間の作業でも目が疲れないよう、彩度は差し色だけに寄せて地は淡く保つ。
+   余白には炭酸の泡がゆっくり立ちのぼる (YellScene)。 */
+[data-theme="yell"] {
+  color-scheme: light;
+
+  /* グラスの中: 上は泡のクリーム、下に向かって琥珀が濃くなる縦グラデ */
+  --app-pattern: linear-gradient(to bottom, #fffaf0 0%, #fff2dd 52%, #ffe7c6 100%);
+
+  --app-bg: #fff6e9; /* クリーム (pattern のフォールバック) */
+  --surface: #ffffff;
+  --surface-2: #fff3e2;
+  --surface-hover: #ffe7ca;
+  --border: #f4dcbc;
+  --border-strong: #e6bd92;
+  --text: #3d2412; /* ローストモルトの茶 */
+  --text-muted: #7a5638;
+  --text-faint: #a9866a;
+
+  --accent: #ef7215; /* エールの琥珀オレンジ */
+  --accent-hover: #d95f0a;
+  --accent-fg: #ffffff;
+  --accent-soft: #f79a4e;
+
+  --magic: #6f9c0d; /* シトラスホップの緑黄 (分離ボタン。オレンジと明確に別系統) */
+  --magic-hover: #5c8309;
+
+  --danger: #d93a2b;
+  --danger-hover: #b8291c;
+
+  /* ---- canvas: 淡い琥珀の地に濃い波形が映える ---- */
+  --wave-bg: #fff6e8;
+  --wave-ruler-bg: #ffedd6;
+  --wave-grid: #f2d9b6;
+  --wave-midline: #c99a68;
+  --wave-ruler-text: #a9866a;
+  --seg-default: #c0a184;
+  --seg-no-speaker: #8a6748;
+  --seg-selected: #3d2412;
+  --playhead: #0e8f9e; /* 冷えたグラスのアクア (accent オレンジ・danger 赤と区別) */
+
+  --suspicion-intruder: var(--danger);
+  --suspicion-boundary: #b45309; /* amber-700: 明るい琥珀地でも accent と混ざらない濃さ */
+
+  /* ---- speaker palette: 夏の柑橘とハーブ。クリーム地で潰れない中〜濃彩度 ---- */
+  --spk-0: #e2670e; /* エールオレンジ */
+  --spk-1: #0d9488; /* ミントティール */
+  --spk-2: #6f9c0d; /* シトラスホップ */
+  --spk-3: #e0447a; /* スイカピンク */
+  --spk-4: #0d84c9; /* 夏空ブルー */
+  --spk-5: #d93a2b; /* トマトレッド */
+  --spk-6: #7c3aed; /* グレープ */
+  --spk-7: #c98a06; /* レモンピールの金 */
+  --spk-8: #14a06a; /* ライムグリーン */
+  --spk-9: #4f46e5; /* 夕暮れのインディゴ */
+}
+
+/* ---- yell-scene: 余白をゆっくり立ちのぼる炭酸の泡 (YellScene.tsx) ---- */
+/* アプリ本体の裏に敷く装飾レイヤー。canvas は不透明なので波形にはかからない。 */
+.yell-scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+/* 各泡: まっすぐ上へ (rise) 昇りながら左右にわずかに蛇行する (中の bead が drift)。
+   位置・速度・大きさを nth-child で散らす。9個。 */
+.yell-bubble {
+  position: absolute;
+  bottom: -6vh;
+  will-change: transform;
+  animation: yell-rise linear infinite;
+}
+.yell-bead {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  /* 泡の縁だけを光らせる。塗りは薄く、上辺にハイライトを一点入れる */
+  border: 1.5px solid rgb(239 114 21 / 26%);
+  background:
+    radial-gradient(circle at 32% 26%, rgb(255 255 255 / 85%) 0 22%, transparent 26%),
+    radial-gradient(circle at 50% 60%, rgb(255 214 150 / 30%) 0 60%, transparent 62%);
+  animation: yell-drift ease-in-out infinite alternate;
+}
+.yell-bubble:nth-child(1) {
+  left: 6%;
+  opacity: 0.55;
+  animation-duration: 15s;
+  animation-delay: -3s;
+}
+.yell-bubble:nth-child(1) .yell-bead {
+  animation-duration: 3.4s;
+}
+.yell-bubble:nth-child(2) {
+  left: 17%;
+  opacity: 0.4;
+  animation-duration: 19s;
+  animation-delay: -9s;
+}
+.yell-bubble:nth-child(2) .yell-bead {
+  width: 9px;
+  height: 9px;
+  animation-duration: 4.2s;
+}
+.yell-bubble:nth-child(3) {
+  left: 29%;
+  opacity: 0.6;
+  animation-duration: 13s;
+  animation-delay: -1s;
+}
+.yell-bubble:nth-child(3) .yell-bead {
+  width: 18px;
+  height: 18px;
+  animation-duration: 2.8s;
+}
+.yell-bubble:nth-child(4) {
+  left: 41%;
+  opacity: 0.35;
+  animation-duration: 22s;
+  animation-delay: -14s;
+}
+.yell-bubble:nth-child(4) .yell-bead {
+  width: 7px;
+  height: 7px;
+  animation-duration: 4.8s;
+}
+.yell-bubble:nth-child(5) {
+  left: 53%;
+  opacity: 0.5;
+  animation-duration: 16.5s;
+  animation-delay: -6s;
+}
+.yell-bubble:nth-child(5) .yell-bead {
+  width: 12px;
+  height: 12px;
+  animation-duration: 3.6s;
+}
+.yell-bubble:nth-child(6) {
+  left: 65%;
+  opacity: 0.45;
+  animation-duration: 20s;
+  animation-delay: -11s;
+}
+.yell-bubble:nth-child(6) .yell-bead {
+  width: 10px;
+  height: 10px;
+  animation-duration: 4.4s;
+}
+.yell-bubble:nth-child(7) {
+  left: 76%;
+  opacity: 0.58;
+  animation-duration: 14s;
+  animation-delay: -4s;
+}
+.yell-bubble:nth-child(7) .yell-bead {
+  width: 16px;
+  height: 16px;
+  animation-duration: 3s;
+}
+.yell-bubble:nth-child(8) {
+  left: 87%;
+  opacity: 0.38;
+  animation-duration: 18s;
+  animation-delay: -8s;
+}
+.yell-bubble:nth-child(8) .yell-bead {
+  width: 8px;
+  height: 8px;
+  animation-duration: 4.6s;
+}
+.yell-bubble:nth-child(9) {
+  left: 95%;
+  opacity: 0.52;
+  animation-duration: 17s;
+  animation-delay: -13s;
+}
+.yell-bubble:nth-child(9) .yell-bead {
+  width: 13px;
+  height: 13px;
+  animation-duration: 3.8s;
+}
+
+/* 上昇: 画面下端の外から上端の外へ。横の蛇行は drift 側に任せる */
+@keyframes yell-rise {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-112vh);
+  }
+}
+/* 蛇行: 炭酸の泡らしく横振れは小さく (花びらのように舞わせない) */
+@keyframes yell-drift {
+  from {
+    transform: translateX(-7px);
+  }
+  to {
+    transform: translateX(7px);
+  }
+}
+/* 動きを抑えたいユーザーには泡レイヤーごと非表示 */
+@media (prefers-reduced-motion: reduce) {
+  .yell-scene {
+    display: none;
+  }
+}
