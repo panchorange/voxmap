@@ -1,7 +1,12 @@
 // 音声 / 動画 / RTTM / voxmap.json の読み込み振り分け。拡張子・MIME で判定する。
 import { container } from "../../app/container.ts";
 import { parseRttm } from "../../domain/rttm.ts";
-import { type ParsedSidecar, parseSidecar } from "../../domain/sidecar.ts";
+import {
+  ACCEPTED_TOOLS,
+  type ParsedSidecar,
+  readSidecar,
+  type SidecarReject,
+} from "../../domain/sidecar.ts";
 import { useAudioStore } from "../../state/audioStore.ts";
 import { useCatchStore } from "../../state/catchStore.ts";
 import { useEditOpsStore } from "../../state/editOpsStore.ts";
@@ -141,12 +146,46 @@ export function restoreFromParsed(parsed: ParsedSidecar, source: string): void {
     );
 }
 
-/** voxmap.json (savepoint) を読み込んで status まで復元する。json でなければ false。 */
+/** 拒否理由を人間向けの一文にする。 */
+function rejectReason(reject: SidecarReject): string {
+  switch (reject.reason) {
+    case "not-json":
+      return t("notice.sidecarRejectNotJson");
+    case "not-object":
+      return t("notice.sidecarRejectNotObject");
+    case "tool-mismatch":
+      return reject.tool === null
+        ? t("notice.sidecarRejectToolMissing")
+        : t("notice.sidecarRejectToolMismatch", { tool: reject.tool });
+    case "segments-not-array":
+      return t("notice.sidecarRejectSegments");
+  }
+}
+
+/**
+ * 読み込めなかった json は「なぜ弾いたか + 読み込みに必要な条件」を通知する。
+ * 無反応 (silent false) だとユーザーが原因を辿れないため。
+ */
+function notifySidecarReject(reject: SidecarReject, source: string): void {
+  useNoticeStore.getState().notify(
+    t("notice.sidecarRejected", {
+      source,
+      reason: rejectReason(reject),
+      requirements: t("notice.sidecarRequirements", { tools: ACCEPTED_TOOLS.join(" / ") }),
+    }),
+    "warn",
+  );
+}
+
+/** voxmap.json (savepoint) を読み込んで status まで復元する。json でなければ理由を通知して false。 */
 export async function loadSidecarFile(file: File): Promise<boolean> {
   const text = await file.text();
-  const parsed = parseSidecar(text);
-  if (!parsed) return false;
-  restoreFromParsed(parsed, file.name);
+  const read = readSidecar(text);
+  if (!read.ok) {
+    notifySidecarReject(read.reject, file.name);
+    return false;
+  }
+  restoreFromParsed(read.sidecar, file.name);
   return true;
 }
 

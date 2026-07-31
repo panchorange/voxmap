@@ -14,6 +14,10 @@ import { countByStatus, provenanceToStatus, statusToProvenance } from "./status.
 import type { Segment } from "./types.ts";
 
 const TOOL = "voxmap-studio";
+/** 公開前 (repo 改名前) の studio が書き出していた tool 名。**読み込みのみ**受け付ける。 */
+const LEGACY_TOOLS = ["speaker-diarization-studio"] as const;
+/** 読み込みで受け付ける tool 名 (書き出しは常に TOOL)。通知の条件表示にも使う。 */
+export const ACCEPTED_TOOLS: readonly string[] = [TOOL, ...LEGACY_TOOLS];
 // v2: summary.cost (作業コスト計測) を追加。parseSidecar は cost 欠落を許容 (v1 互換)。
 // v3: createdAt (初回セッション開始時刻) を追加。再開時に引き継ぎ、exportedAt との差で
 //     日跨ぎ込みの総スパンを出せる。parseSidecar は欠落を許容 (v1/v2 互換)。
@@ -167,21 +171,46 @@ export interface ParsedSidecar {
   createdAt?: string;
 }
 
+/** 読み込みを拒否した理由。呼び出し側 (loadFiles) が「なぜ弾いたか」を通知するために使う。 */
+export type SidecarReject =
+  | { reason: "not-json" }
+  | { reason: "not-object" }
+  /** tool が対応名でない。tool = 実際に入っていた値 (欠落・非文字列なら null)。 */
+  | { reason: "tool-mismatch"; tool: string | null }
+  | { reason: "segments-not-array" };
+
+export type SidecarRead =
+  | { ok: true; sidecar: ParsedSidecar }
+  | { ok: false; reject: SidecarReject };
+
 /**
  * voxmap.json を読み込んで編集状態を復元する (savepoint 再開)。
  * provenance → status に戻し、integrity を再計算して改変を検知する。
- * voxmap.json でなければ null。
+ * voxmap.json でなければ拒否理由を返す (呼び出し側が通知に使う)。
+ *
+ * tool は現行名と旧名 (ACCEPTED_TOOLS) を受け付ける。integrity ハッシュは fileId + segments
+ * のみから計算し tool を含まないため、旧名 json でも tampered にはならない。
  */
-export function parseSidecar(text: string): ParsedSidecar | null {
+export function readSidecar(text: string): SidecarRead {
   let data: unknown;
   try {
     data = JSON.parse(text);
   } catch {
-    return null;
+    return { ok: false, reject: { reason: "not-json" } };
   }
-  if (typeof data !== "object" || data === null) return null;
+  if (typeof data !== "object" || data === null) {
+    return { ok: false, reject: { reason: "not-object" } };
+  }
   const d = data as Partial<Sidecar>;
-  if (d.tool !== TOOL || !Array.isArray(d.segments)) return null;
+  if (typeof d.tool !== "string" || !ACCEPTED_TOOLS.includes(d.tool)) {
+    return {
+      ok: false,
+      reject: { reason: "tool-mismatch", tool: typeof d.tool === "string" ? d.tool : null },
+    };
+  }
+  if (!Array.isArray(d.segments)) {
+    return { ok: false, reject: { reason: "segments-not-array" } };
+  }
 
   const fileId = typeof d.fileId === "string" ? d.fileId : "audio";
   const audioName = typeof d.audioName === "string" ? d.audioName : undefined;
@@ -209,14 +238,26 @@ export function parseSidecar(text: string): ParsedSidecar | null {
   const createdAt = typeof d.createdAt === "string" ? d.createdAt : undefined;
 
   return {
-    fileId,
-    ...(audioName ? { audioName } : {}),
-    segments,
-    complete,
-    tampered,
-    ...(cost ? { cost } : {}),
-    ...(createdAt ? { createdAt } : {}),
+    ok: true,
+    sidecar: {
+      fileId,
+      ...(audioName ? { audioName } : {}),
+      segments,
+      complete,
+      tampered,
+      ...(cost ? { cost } : {}),
+      ...(createdAt ? { createdAt } : {}),
+    },
   };
+}
+
+/**
+ * readSidecar の薄いラッパ。拒否理由が不要な呼び出し側 (autosave 復元など) 用。
+ * voxmap.json でなければ null。
+ */
+export function parseSidecar(text: string): ParsedSidecar | null {
+  const read = readSidecar(text);
+  return read.ok ? read.sidecar : null;
 }
 
 /** summary.cost を検証して取り出す。型不正・欠落は undefined。 */
