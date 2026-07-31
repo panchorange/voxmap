@@ -1,7 +1,7 @@
 // HTMLMediaElement (Audio / Video) をラップした再生制御。
 // store には依存せず、currentTime/playing/rate をコールバックで通知する (配線は app 側)。
 
-import { nextPlaybackRate } from "../domain/playback.ts";
+import { clampRate, nextPlaybackRate } from "../domain/playback.ts";
 
 export class PlaybackController {
   private media: HTMLMediaElement = new Audio();
@@ -35,6 +35,14 @@ export class PlaybackController {
     if (rate === this.media.playbackRate) return;
     this.media.playbackRate = rate;
     this.onRateChange(rate);
+  }
+
+  /** 再生速度を任意の値に直接設定する (倍率クリック→数値入力用)。範囲外はクランプする。 */
+  setRate(rate: number): void {
+    const clamped = clampRate(rate);
+    if (clamped === this.media.playbackRate) return;
+    this.media.playbackRate = clamped;
+    this.onRateChange(clamped);
   }
 
   attach(url: string): void {

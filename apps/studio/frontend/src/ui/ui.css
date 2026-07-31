@@ -381,6 +381,20 @@ body {
   font-variant-numeric: tabular-nums;
   font-size: 0.85rem;
 }
+.transport__rate-input {
+  width: 6ch;
+  padding: 0 2px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  /* ネイティブのスピンボタン(上下矢印)を消し、桁の表示幅を数字自体に回す (段階ボタンが別途ある) */
+  -moz-appearance: textfield;
+}
+.transport__rate-input::-webkit-outer-spin-button,
+.transport__rate-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 
 /* --- waveform --- */
 .waveform__toolbar {
